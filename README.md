@@ -1,2 +1,5 @@
 # Ball-Game
-My implementation for favourite game "Balls"
+
+Моя реализация игры "Шары"
+Правила игры - BallsGame.doc
+Входные данные - input.txt
