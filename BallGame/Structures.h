@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace nsBallGame
+namespace BallGame
 {
  /*!
   * \class Ball

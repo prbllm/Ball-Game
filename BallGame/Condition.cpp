@@ -3,7 +3,7 @@
 #include <iterator>
 
 using namespace std;
-namespace nsBallGame
+namespace BallGame
 {
 
 Condition::Condition()
