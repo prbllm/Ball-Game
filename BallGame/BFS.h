@@ -2,7 +2,7 @@
 
 #include <list>
 
-namespace nsBallGame
+namespace BallGame
 {
 
 class Condition;

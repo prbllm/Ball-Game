@@ -11,7 +11,7 @@
 
 #define FILE_NAME "input.txt"
 
-using namespace nsBallGame;
+using namespace BallGame;
 
 /*!
  * \brief функция загрузки данных из файла

@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace nsBallGame
+namespace BallGame
 {
 
 void BFS::getNextPoints(const Condition & state, list<Condition> & states)

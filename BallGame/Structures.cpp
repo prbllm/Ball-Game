@@ -1,43 +1,43 @@
 #include "Structures.h"
 
-nsBallGame::Ball::Ball(int x, int y, int num)
+BallGame::Ball::Ball(int x, int y, int num)
 {
 	row = x;
 	col = y;
 	number = num;
 }
 
-void nsBallGame::Ball::setRow(int x)
+void BallGame::Ball::setRow(int x)
 {
 	row = x;
 }
 
-int nsBallGame::Ball::getRow() const
+int BallGame::Ball::getRow() const
 {
 	return row;
 }
 
-void nsBallGame::Ball::setCol(int y)
+void BallGame::Ball::setCol(int y)
 {
 	col = y;
 }
 
-int nsBallGame::Ball::getCol() const
+int BallGame::Ball::getCol() const
 {
 	return col;
 }
 
-void nsBallGame::Ball::setNumber(int num)
+void BallGame::Ball::setNumber(int num)
 {
 	number = num;
 }
 
-int nsBallGame::Ball::getNumber() const
+int BallGame::Ball::getNumber() const
 {
 	return number;
 }
 
-nsBallGame::Wall::Wall(int row, int col, int row2, int col2)
+BallGame::Wall::Wall(int row, int col, int row2, int col2)
 {
 	row_first = row;
 	col_first = col;
@@ -45,22 +45,22 @@ nsBallGame::Wall::Wall(int row, int col, int row2, int col2)
 	col_sec = col2;
 }
 
-int nsBallGame::Wall::getRowFirst() const
+int BallGame::Wall::getRowFirst() const
 {
 	return row_first;
 }
 
-int nsBallGame::Wall::getRowSec() const
+int BallGame::Wall::getRowSec() const
 {
 	return row_sec;
 }
 
-int nsBallGame::Wall::getColFirst() const
+int BallGame::Wall::getColFirst() const
 {
 	return col_first;
 }
 
-int nsBallGame::Wall::getColSec() const
+int BallGame::Wall::getColSec() const
 {
 	return col_sec;
 }
