@@ -1,7 +1,7 @@
 // Self
 #include "BFS.h"
 #include "Condition.h"
-#include "stdafx.h"
+#include "Constants.h"
 
 // C++
 #include <fstream>
@@ -9,11 +9,10 @@
 #include <list>
 #include <sstream>
 
-#define FILE_NAME "input.txt"
-
 using namespace BallGame;
+using namespace Names;
 
-/*!
+/**
  * \brief функция загрузки данных из файла
  * \param cases список кейсов
  */
@@ -91,10 +90,9 @@ int main()
 {
 	BFS bfs;
 	list<Condition> cases;
-	list<Condition>::iterator it;
 	openFile(cases);
 
-	for (it = cases.begin(); it != cases.end(); ++it)
+	for (auto it = cases.begin(); it != cases.end(); ++it)
 		bfs.run(*it);
 
     return 0;

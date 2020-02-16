@@ -43,9 +43,6 @@ BFS::BFS()
 	: cases_count(1)
 {}
 
-BFS::~BFS()
-{}
-
 void BFS::run(const Condition & start)
 {
 	list<Condition> willCheck;
