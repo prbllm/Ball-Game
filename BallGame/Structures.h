@@ -2,7 +2,7 @@
 
 namespace BallGame
 {
- /*!
+ /**
   * \class Ball
   * \brief Модель шара/отверстия:
   * координаты (строка, столбец) и номер
@@ -16,7 +16,7 @@ class Ball
 
 public:
 
-	/*!
+	/**
 	 * \brief Конструктор
 	 * \param x Строка
 	 * \param y Столбец
@@ -24,44 +24,44 @@ public:
 	 */
 	explicit Ball(int x, int y, int num);
 
-	/*!
+	/**
 	 * \brief Установка строки
 	 * \param x Строка
 	 */
 	void setRow(int x);
 
-	/*!
+	/**
 	 * \brief Установка столбца
 	 * \param y строка
 	 */
 	void setCol(int y);
 
-	/*!
+	/**
 	 * \brief Установка номера
 	 * \param num номер
 	 */
 	void setNumber(int num);
 
-	/*!
+	/**
 	 * \brief Получение строки
 	 * \return номер строки
 	 */
 	int getRow() const;
 
-	/*!
+	/**
 	 * \brief Получение столбца
 	 * \return номер столбца
 	 */
 	int getCol() const;
 
-	/*!
+	/**
 	 * \brief Получение номера шара/отверстия
 	 * \return номер шара/отверстия
 	*/
 	int getNumber() const;
 };
 
-/*!
+/**
  * \class Wall
  * \brief Модель стены:
  * координаты начала стены (строка, столбец) и координаты конца стены (строка столбец)
@@ -76,7 +76,7 @@ class Wall
 
 public:
 
-	/*!
+	/**
 	 * \brief Конструктор
 	 * \param row Строка начала
 	 * \param col Столбец начала
@@ -85,25 +85,25 @@ public:
 	 */
 	explicit Wall(int row, int col, int row2, int col2);
 
-	/*!
+	/**
 	 * \brief Получение координаты (строки) начала стены
 	 * \return координата (строка) начала стены
 	 */
 	int getRowFirst() const;
 
-	/*!
+	/**
 	 * \brief Получение координаты (строки) конца стены
 	 * \return координата (строки) конца стены
 	 */
 	int getRowSec() const;
 
-	/*!
+	/**
 	 * \brief Получение координаты (столбца) начала стены
 	 * \return координата (столбец) начала стены
 	 */
 	int getColFirst() const;
 
-	/*!
+	/**
 	 * \brief Получение координаты (столбца) конца стены
 	 * \return координата (столбец) конца стены
 	 */
