@@ -10,7 +10,6 @@ namespace BallGame
 		/**
 		 * \class BFS
 		 * \brief Класс поиска в ширину (breadth-first search)
-		 * \author Карунный Я.В.
 		 */
 	class BFS
 	{

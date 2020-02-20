@@ -149,6 +149,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BallGame.h" />
     <ClInclude Include="BFS.h" />
     <ClInclude Include="Condition.h" />
     <ClInclude Include="Constants.h" />
@@ -158,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BallGame.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="BFS.cpp" />
     <ClCompile Include="Condition.cpp" />
     <ClCompile Include="stdafx.cpp" />
