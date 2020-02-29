@@ -1,8 +1,8 @@
 #pragma once
 
-namespace BallGame
+namespace nsGame
 {
-	namespace Names
+	namespace nsNames
 	{
 		constexpr auto FILE_NAME = "input.txt";
 	}

@@ -43,7 +43,7 @@ BFS::BFS()
 	: cases_count(1)
 {}
 
-void BFS::run(const Condition & start)
+void BFS::run(std::unique_ptr<Condition> start)
 {
 	list<Condition> willCheck;
 	list<Condition> neigh;
