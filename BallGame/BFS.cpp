@@ -7,10 +7,10 @@
 
 using namespace std;
 
-namespace BallGame
+namespace nsGame::nsSearch
 {
 
-void BFS::getNextPoints(const Condition & state, list<Condition> & states)
+void BFS::GetNextPoints(const nsCondition::Condition & state, list<nsCondition::Condition> & states)
 {
 	states.clear();
 	
@@ -39,11 +39,7 @@ void BFS::getNextPoints(const Condition & state, list<Condition> & states)
 		states.push_back(west);
 }
 
-BFS::BFS()
-	: cases_count(1)
-{}
-
-void BFS::run(std::unique_ptr<Condition> start)
+void BFS::run(std::shared_ptr<Condition> start)
 {
 	list<Condition> willCheck;
 	list<Condition> neigh;

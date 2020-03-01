@@ -1,38 +1,29 @@
 ﻿#pragma once
 
+// Self
+#include "Condition.h"
+
 // C++
 #include <list>
 #include <memory>
+#include <mutex>
 
 namespace nsGame
 {
 
 	namespace nsSearch
 	{
-
-		class Condition;
-
 		/**
 		 * \class BFS
 		 * \brief Класс поиска в ширину (breadth-first search)
 		 */
 		class BFS
 		{
-			int cases_count; ///< количество кейсов
-
-			/**
-			 * \brief функция поиска следующих точек
-			 * \param state текущее состояние
-			 * \param states список возможных состояний
-			 */
-			void getNextPoints(const Condition& state, std::list<Condition>& states);
-
 		public:
-
 			/**
 			 * \brief Конструктор по умолчанию
 			 */
-			explicit BFS();
+			explicit BFS() = default;
 
 			/**
 			 * \brief Деструктор
@@ -40,11 +31,22 @@ namespace nsGame
 			~BFS() = default;
 
 			/**
-			 * \brief основная функция запуска алгоритма поиска
+			 * \brief Запуск алгоритма поиска
 			 * \param start начальное состояние
 			 */
-			void run(std::unique_ptr<Condition> start);
+			void Run(std::shared_ptr<nsCondition::Condition> start);
 
+		private:
+
+			/**
+			 * \brief Поиск следующих точек
+			 * \param state текущее состояние
+			 * \param states список возможных состояний
+			 */
+			void GetNextPoints(const nsCondition::Condition& state, std::list<nsCondition::Condition>& states);
+
+			int cases_count{ 1 }; ///< количество кейсов
+			std::mutex _mtx; ///< мьютекс для синхронизации обращения к консоли
 		};
 	}
 }

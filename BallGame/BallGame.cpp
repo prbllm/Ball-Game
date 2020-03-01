@@ -8,25 +8,31 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <thread>
 
 namespace nsGame
 {
 	using std::cout;
 	using namespace nsNames;
-	
-	BallGame::BallGame() = default;
-
-	BallGame::~BallGame() = default;
 
 	void BallGame::Start()
 	{
-		Initialize();
+		_exceptions.clear();
+		_cases.clear();
 
-		nsSearch::BFS search;
-		while (!cases.empty())
+		StartWithExceptions();
+
+		for (const auto& exc : _exceptions)
 		{
-			search.run(std::move(cases.front()));
-			cases.pop();
+			try
+			{
+				if (exc != nullptr)
+					std::rethrow_exception(exc);
+			}
+			catch (const std::exception & e)
+			{
+				cout << e.what() << endl;
+			}
 		}
 	}
 
@@ -102,7 +108,33 @@ namespace nsGame
 					, row > row2 ? row : row2
 					, col > col2 ? col : col2);
 			}
-			cases.push(std::make_unique<nsCondition::Condition>(cond));
+			_cases.push_back(std::make_unique<nsCondition::Condition>(cond));
+		}
+	}
+
+	void BallGame::StartWithExceptions()
+	{
+		try
+		{
+			Initialize();
+			const auto size = _cases.size();
+			_exceptions.reserve(size);
+			
+			std::vector<std::thread> threads;
+			threads.reserve(size);
+			
+			nsSearch::BFS search;
+
+			for (auto i = 0; i < size; ++i)
+			{
+				threads.emplace_back();
+				threads[i] = std::thread(&nsSearch::BFS::Run, search, _cases[i]);
+			}
+		}
+		catch (...)
+		{
+			std::lock_guard<std::mutex> lock(_mtx);
+			_exceptions.push_back(std::current_exception());
 		}
 	}
 }
