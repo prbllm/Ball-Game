@@ -3,75 +3,78 @@
 // Self
 #include "Condition.h"
 
+// C++
 #include <iostream>
-
-using namespace std;
+#include <list>
+#include <queue>
 
 namespace nsGame::nsSearch
 {
-
-void BFS::GetNextPoints(const nsCondition::Condition & state, list<nsCondition::Condition> & states)
+	using std::shared_ptr;
+	
+	using namespace nsCondition;
+	
+void BFS::GetNextPoints(const std::shared_ptr<Condition > & state, std::list<std::shared_ptr<Condition>>&states) const
 {
 	states.clear();
 	
-	// north
-	Condition north(state);
-	north.setCameFrom(&state);
-	if (north.goNorth())
+	auto north = state;
+	north->setCameFrom(state);
+	if (north->goNorth())
 		states.push_back(north);
 
-	// south
-	Condition south(state);
-	south.setCameFrom(&state);
-	if (south.goSouth())
+	auto south = state;
+	south->setCameFrom(&state);
+	if (south->goSouth())
 		states.push_back(south);
 
-	// east
-	Condition east(state);
-	east.setCameFrom(&state);
-	if (east.goEast())
+	auto east = state;
+	east->setCameFrom(&state);
+	if (east->goEast())
 		states.push_back(east);
 
-	// west
-	Condition west(state);
-	west.setCameFrom(&state);
-	if (west.goWest())
+	auto west = state;
+	west->setCameFrom(&state);
+	if (west->goWest())
 		states.push_back(west);
 }
 
-void BFS::run(std::shared_ptr<Condition> start)
+void BFS::Run(const std::shared_ptr<Condition>& start)
 {
-	list<Condition> willCheck;
-	list<Condition> neigh;
-	willCheck.push_back(start);
+	queue<shared_ptr<Condition>> willCheck;
+	list<shared_ptr<Condition>> neigh;
+	willCheck.push(start);
 
-	// пока лист состояний, ожидающих рассмотрения не пуст, ищем состояние
-	while (willCheck.size() > 0)
+	// пока список состояний, ожидающих рассмотрения не пуст, ищем состояние
+	while (!willCheck.empty())
 	{
 		// забираем первое значение
-		Condition curr = Condition(willCheck.front());
+		auto current = willCheck.front();
 
 		// проверяем количество шаров
-		if (curr.getBallsAndHolesCount() == 0)
+		if (current->getBallsAndHolesCount() == 0)
 		{
-			cout << "Case " << cases_count << ": " << curr.getAnswer().length() << " moves " << curr.getAnswer() << ".\n\n";
+			cout << "Case " << cases_count << ": " << current->getAnswer().length() << " moves " << current->getAnswer() << ".\n\n";
 			++cases_count;
 			return;
 		}
 
 		// проверяем невозможность нахождения решения
-		if (curr.isFinish())
+		if (current->isFinish())
 		{
-			cout << "Case " << cases_count << ": " << curr.getAnswer() << ".\n\n";
+			cout << "Case " << cases_count << ": " << current->getAnswer() << ".\n\n";
 			++cases_count;
+			_mtx.unlock();
 			return;
 		}
 		// удаляем состояние из списка ожидающих рассмотрения
-		willCheck.pop_front();
+		willCheck.pop();
 		
 		// получаем возможные состояния и добавляем их в список на рассмотрение
-		getNextPoints(curr, neigh);
-		willCheck.insert(willCheck.end(), neigh.begin(), neigh.end());
+		GetNextPoints(current, neigh);
+
+		for (const auto& i : neigh)
+			willCheck.push(i);
 	}
 }
 

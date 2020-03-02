@@ -4,13 +4,10 @@
 #include "Condition.h"
 
 // C++
-#include <list>
 #include <memory>
-#include <mutex>
 
 namespace nsGame
 {
-
 	namespace nsSearch
 	{
 		/**
@@ -34,7 +31,7 @@ namespace nsGame
 			 * \brief Запуск алгоритма поиска
 			 * \param start начальное состояние
 			 */
-			void Run(std::shared_ptr<nsCondition::Condition> start);
+			void Run(const std::shared_ptr<nsCondition::Condition>& start);
 
 		private:
 
@@ -43,10 +40,9 @@ namespace nsGame
 			 * \param state текущее состояние
 			 * \param states список возможных состояний
 			 */
-			void GetNextPoints(const nsCondition::Condition& state, std::list<nsCondition::Condition>& states);
+			void GetNextPoints(const std::shared_ptr<nsCondition::Condition>& state, std::list<std::shared_ptr<nsCondition::Condition>>& states) const;
 
 			int cases_count{ 1 }; ///< количество кейсов
-			std::mutex _mtx; ///< мьютекс для синхронизации обращения к консоли
 		};
 	}
 }

@@ -2,6 +2,7 @@
 
 // C++
 #include <list>
+#include <memory>
 #include <string>
 
 // Self
@@ -88,7 +89,7 @@ namespace nsGame
 			 * \brief функция установки предыдущего состояния
 			 * \param cf предыдущее состояние
 			 */
-			void setCameFrom(const Condition* cf);
+			void setCameFrom(const std::shared_ptr<Condition>& cf);
 
 			/**
 			 * \brief функция получения предыдущего состояния

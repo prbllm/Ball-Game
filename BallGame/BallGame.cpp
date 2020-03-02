@@ -13,7 +13,12 @@
 namespace nsGame
 {
 	using std::cout;
+	using std::vector;
+	using std::thread;
+	
+	using namespace nsCondition;
 	using namespace nsNames;
+	using namespace nsSearch;
 
 	void BallGame::Start()
 	{
@@ -68,7 +73,7 @@ namespace nsGame
 			if (size == 0 && balls == 0 && walls == 0)
 				break;
 
-			nsCondition::Condition cond(balls, walls, size);
+			Condition cond(balls, walls, size);
 
 			for (auto i = 0; i < balls; ++i)
 			{
@@ -108,7 +113,7 @@ namespace nsGame
 					, row > row2 ? row : row2
 					, col > col2 ? col : col2);
 			}
-			_cases.push_back(std::make_unique<nsCondition::Condition>(cond));
+			_cases.push_back(std::make_shared<Condition>(cond));
 		}
 	}
 
@@ -120,15 +125,22 @@ namespace nsGame
 			const auto size = _cases.size();
 			_exceptions.reserve(size);
 			
-			std::vector<std::thread> threads;
+			vector<thread> threads;
 			threads.reserve(size);
-			
-			nsSearch::BFS search;
+
+			vector<BFS> search;
+			search.reserve(size);
 
 			for (auto i = 0; i < size; ++i)
 			{
+				search.emplace_back();
 				threads.emplace_back();
-				threads[i] = std::thread(&nsSearch::BFS::Run, search, _cases[i]);
+				threads[i] = thread(&BFS::Run, search[i], std::cref(_cases[i]));
+			}
+
+			for (const auto& i : search)
+			{
+				// TODO дождаться потоков и вывести результат
 			}
 		}
 		catch (...)

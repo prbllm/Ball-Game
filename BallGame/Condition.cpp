@@ -79,7 +79,7 @@ string Condition::getAnswer() const
 	return answer;
 }
 
-void Condition::setCameFrom(const Condition * cf)
+void Condition::setCameFrom(const std::shared_ptr<Condition>&* cf)
 {
 	came_from = new Condition(*cf);
 }
