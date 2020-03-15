@@ -8,40 +8,16 @@
 // Self
 #include "Structures.h"
 
-using namespace std;
-
 namespace nsGame
 {
-	
 	namespace nsCondition
 	{
-
 		/**
 		 * \class Condition
 		 * \brief Класс хранения состояний
 		 */
 		class Condition
 		{
-		private:
-
-			list<Ball*> holes;	///< лунки
-
-			list<Wall*> walls;	///< стены
-
-			list<Ball*> balls;	///< шары
-
-			int holes_count;	///< количество лунок
-
-			int walls_count;	///< количество стен
-
-			int balls_count;	///< количество шаров
-
-			Condition* came_from;	///< указатель на предыдущее состояние
-
-			string answer;	///< путь
-
-			int size;	///< размер поля
-
 		public:
 
 			/**
@@ -52,7 +28,7 @@ namespace nsGame
 			/**
 			 * \brief Конструктор копирования
 			 */
-			Condition(const Condition& cond);
+			explicit Condition(const Condition& cond);
 
 			/**
 			 * \brief Конструктор
@@ -60,7 +36,7 @@ namespace nsGame
 			 * \param n_walls количество стен
 			 * \param n_size размер поля
 			 */
-			Condition(int n_balls, int n_walls, int n_size);
+			explicit Condition(int n_balls, int n_walls, int n_size);
 
 			/**
 			 * \brief Деструктор
@@ -77,13 +53,13 @@ namespace nsGame
 			 * \brief функция установки пути
 			 * \param ans путь
 			 */
-			void setAnswer(string ans);
+			void setAnswer(std::string ans);
 
 			/**
 			 * \brief функция получения пути
 			 * \return путь
 			 */
-			string getAnswer() const;
+			std::string getAnswer() const;
 
 			/**
 			 * \brief функция установки предыдущего состояния
@@ -182,6 +158,19 @@ namespace nsGame
 			 * \return да/нет
 			 */
 			bool isFinish();
+
+		private:
+			std::list<nsParameters::Ball*> holes;	///< лунки
+			std::list<nsParameters::Wall*> walls;	///< стены
+			std::list<nsParameters::Ball*> balls;	///< шары
+
+			int holes_count{ 0 };	///< количество лунок
+			int walls_count{ 0 };	///< количество стен
+			int balls_count{ 0 };	///< количество шаров
+			int size{ 0 };	///< размер поля
+
+			Condition* came_from{ nullptr };	///< указатель на предыдущее состояние
+			std::string answer;	///< путь
 		};
 
 	}

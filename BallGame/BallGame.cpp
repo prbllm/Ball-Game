@@ -51,13 +51,13 @@ namespace nsGame
 			return;
 		}
 
-		auto size{ 0 };
-		auto balls{ 0 };
-		auto walls{ 0 };
-		auto row{ 0 };
-		auto col{ 0 };
-		auto row2{ 0 };
-		auto col2{ 0 };
+		int size{ 0 };
+		int balls{ 0 };
+		int walls{ 0 };
+		int row{ 0 };
+		int col{ 0 };
+		int row2{ 0 };
+		int col2{ 0 };
 
 		while (true)
 		{

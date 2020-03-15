@@ -6,4 +6,3 @@ void main()
 	nsGame::BallGame game;
 	game.Start();
 }
-
