@@ -1,4 +1,4 @@
-#include "Structures.h"
+﻿#include "Structures.h"
 
 BallGame::Ball::Ball(int x, int y, int num)
 {

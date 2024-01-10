@@ -1,4 +1,4 @@
-#include "BFS.h"
+п»ї#include "BFS.h"
 
 // Self
 #include "Condition.h"
@@ -49,13 +49,13 @@ void BFS::run(const Condition & start)
 	list<Condition> neigh;
 	willCheck.push_back(start);
 
-	// пока лист состояний, ожидающих рассмотрения не пуст, ищем состояние
+	// РїРѕРєР° Р»РёСЃС‚ СЃРѕСЃС‚РѕСЏРЅРёР№, РѕР¶РёРґР°СЋС‰РёС… СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЏ РЅРµ РїСѓСЃС‚, РёС‰РµРј СЃРѕСЃС‚РѕСЏРЅРёРµ
 	while (willCheck.size() > 0)
 	{
-		// забираем первое значение
+		// Р·Р°Р±РёСЂР°РµРј РїРµСЂРІРѕРµ Р·РЅР°С‡РµРЅРёРµ
 		Condition curr = Condition(willCheck.front());
 
-		// проверяем количество шаров
+		// РїСЂРѕРІРµСЂСЏРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ С€Р°СЂРѕРІ
 		if (curr.getBallsAndHolesCount() == 0)
 		{
 			cout << "Case " << cases_count << ": " << curr.getAnswer().length() << " moves " << curr.getAnswer() << ".\n\n";
@@ -63,17 +63,17 @@ void BFS::run(const Condition & start)
 			return;
 		}
 
-		// проверяем невозможность нахождения решения
+		// РїСЂРѕРІРµСЂСЏРµРј РЅРµРІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РЅР°С…РѕР¶РґРµРЅРёСЏ СЂРµС€РµРЅРёСЏ
 		if (curr.isFinish())
 		{
 			cout << "Case " << cases_count << ": " << curr.getAnswer() << ".\n\n";
 			++cases_count;
 			return;
 		}
-		// удаляем состояние из списка ожидающих рассмотрения
+		// СѓРґР°Р»СЏРµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РёР· СЃРїРёСЃРєР° РѕР¶РёРґР°СЋС‰РёС… СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЏ
 		willCheck.pop_front();
 		
-		// получаем возможные состояния и добавляем их в список на рассмотрение
+		// РїРѕР»СѓС‡Р°РµРј РІРѕР·РјРѕР¶РЅС‹Рµ СЃРѕСЃС‚РѕСЏРЅРёСЏ Рё РґРѕР±Р°РІР»СЏРµРј РёС… РІ СЃРїРёСЃРѕРє РЅР° СЂР°СЃСЃРјРѕС‚СЂРµРЅРёРµ
 		getNextPoints(curr, neigh);
 		willCheck.insert(willCheck.end(), neigh.begin(), neigh.end());
 	}

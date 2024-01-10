@@ -1,4 +1,4 @@
-// Self
+п»ї// Self
 #include "BFS.h"
 #include "Condition.h"
 #include "Constants.h"
@@ -13,8 +13,8 @@ using namespace BallGame;
 using namespace Names;
 
 /**
- * \brief функция загрузки данных из файла
- * \param cases список кейсов
+ * \brief С„СѓРЅРєС†РёСЏ Р·Р°РіСЂСѓР·РєРё РґР°РЅРЅС‹С… РёР· С„Р°Р№Р»Р°
+ * \param cases СЃРїРёСЃРѕРє РєРµР№СЃРѕРІ
  */
 void openFile(list<Condition> & cases)
 {
@@ -26,7 +26,7 @@ void openFile(list<Condition> & cases)
 		return;
 	}
 	bool isExit = false;
-	
+
 	int size = 0, balls = 0, walls = 0;
 	int row = 0, col = 0;
 	int row2 = 0, col2 = 0;
@@ -97,4 +97,3 @@ int main()
 
     return 0;
 }
-

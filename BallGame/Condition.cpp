@@ -1,4 +1,4 @@
-#include "Condition.h"
+п»ї#include "Condition.h"
 
 #include <iterator>
 
@@ -155,7 +155,7 @@ int Condition::getSize() const
 
 bool Condition::goNorth()
 {
-	// все 4 функции аналогичные, различия только по направлению движения
+	// РІСЃРµ 4 С„СѓРЅРєС†РёРё Р°РЅР°Р»РѕРіРёС‡РЅС‹Рµ, СЂР°Р·Р»РёС‡РёСЏ С‚РѕР»СЊРєРѕ РїРѕ РЅР°РїСЂР°РІР»РµРЅРёСЋ РґРІРёР¶РµРЅРёСЏ
 	list<Ball*>::iterator it_b;
 	list<Ball>::const_iterator it_b_new;
 	list<Ball*>::iterator it_h;
@@ -171,14 +171,14 @@ bool Condition::goNorth()
 	for (it_b = balls.begin(); it_b != balls.end(); ++it_b)
 		balls_old.push_back(*(*it_b));
 
-	// цикл по всем шарам
+	// С†РёРєР» РїРѕ РІСЃРµРј С€Р°СЂР°Рј
 	for (it_b = balls.begin(); it_b != balls.end(); ++it_b)
 	{
 		row_new = 0;
 		balls_count = 0;
 		isWall = false;
 
-		// ищутся шары до конца поля
+		// РёС‰СѓС‚СЃСЏ С€Р°СЂС‹ РґРѕ РєРѕРЅС†Р° РїРѕР»СЏ
 		for (it_b_new = balls_old.cbegin(); it_b_new != balls_old.cend(); ++it_b_new)
 		{
 			if (((*it_b_new).getCol() == (*it_b)->getCol())
@@ -186,10 +186,10 @@ bool Condition::goNorth()
 				++balls_count;
 		}
 
-		// цикл по стенам
+		// С†РёРєР» РїРѕ СЃС‚РµРЅР°Рј
 		for (it_w = walls.begin(); it_w != walls.end(); ++it_w)
 		{
-			// ищутся шары до стены
+			// РёС‰СѓС‚СЃСЏ С€Р°СЂС‹ РґРѕ СЃС‚РµРЅС‹
 			if (((*it_w)->getColFirst() == (*it_w)->getColSec()) && ((*it_w)->getColFirst() == (*it_b)->getCol())
 				&& ((*it_w)->getRowFirst() >= (*it_b)->getRow()))
 			{
@@ -201,7 +201,7 @@ bool Condition::goNorth()
 						&& ((*it_b_new).getRow() <= (*it_w)->getRowFirst()))
 						++balls_count;
 				}
-				// рассчитывается новая строка
+				// СЂР°СЃСЃС‡РёС‚С‹РІР°РµС‚СЃСЏ РЅРѕРІР°СЏ СЃС‚СЂРѕРєР°
 				row_new = (*it_w)->getRowFirst() - balls_count;
 				isWall = true;
 			}
@@ -210,12 +210,12 @@ bool Condition::goNorth()
 		if (!isWall)
 			row_new = size - 1 - balls_count;
 
-		// цикл по лункам
+		// С†РёРєР» РїРѕ Р»СѓРЅРєР°Рј
 		for (it_h = holes.begin(); it_h != holes.end(); ++it_h)
 		{
 			if (((*it_h)->getCol() == (*it_b)->getCol()) && ((*it_h)->getRow() <= row_new) && ((*it_h)->getRow() > (*it_b)->getRow()))
 			{
-				// если есть лунка нужная на пути, запоминаем номер
+				// РµСЃР»Рё РµСЃС‚СЊ Р»СѓРЅРєР° РЅСѓР¶РЅР°СЏ РЅР° РїСѓС‚Рё, Р·Р°РїРѕРјРёРЅР°РµРј РЅРѕРјРµСЂ
 				if (((*it_h)->getNumber() == (*it_b)->getNumber()) && (balls_count == 0))
 				{
 					numbers.push_back((*it_h)->getNumber());
@@ -233,14 +233,14 @@ bool Condition::goNorth()
 			(*it_b)->setRow(row_new);
 	}
 
-	// удаляем шары и лунки
+	// СѓРґР°Р»СЏРµРј С€Р°СЂС‹ Рё Р»СѓРЅРєРё
 	for (int i : numbers)
 	{
 		deleteBall(i);
 		deleteHole(i);
 	}
 
-	// отсеивание лишних движений, которые не изменяют позицию
+	// РѕС‚СЃРµРёРІР°РЅРёРµ Р»РёС€РЅРёС… РґРІРёР¶РµРЅРёР№, РєРѕС‚РѕСЂС‹Рµ РЅРµ РёР·РјРµРЅСЏСЋС‚ РїРѕР·РёС†РёСЋ
 	if ((came_from != nullptr) &&
 		(came_from->came_from != nullptr))
 	{
