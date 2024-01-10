@@ -9,39 +9,39 @@
 namespace BallGame
 {
 
-void BFS::getNextPoints(const Condition & state, std::list<Condition> & states) noexcept
+void BFS::getNextPoints(const Condition& state, std::list<Condition>& states) noexcept
 {
 	try
 	{
 		states.clear();
 
 		// north
-		Condition north(state);
-		north.setCameFrom(&state);
+		Condition north = state;
+		north.setCameFrom(state);
 		if (north.goNorth())
 		{
 			states.emplace_back(north);
 		}
 
 		// south
-		Condition south(state);
-		south.setCameFrom(&state);
+		Condition south = state;
+		south.setCameFrom(state);
 		if (south.goSouth())
 		{
 			states.emplace_back(south);
 		}
 
 		// east
-		Condition east(state);
-		east.setCameFrom(&state);
+		Condition east = state;
+		east.setCameFrom(state);
 		if (east.goEast())
 		{
 			states.emplace_back(east);
 		}
 
 		// west
-		Condition west(state);
-		west.setCameFrom(&state);
+		Condition west = state;
+		west.setCameFrom(state);
 		if (west.goWest())
 		{
 			states.emplace_back(west);
@@ -64,7 +64,7 @@ void BFS::run(const Condition & start) noexcept
 		while (!willCheck.empty())
 		{
 			// забираем первое значение
-			Condition curr = Condition(willCheck.front());
+			Condition curr = willCheck.front();
 
 			// проверяем количество шаров
 			if (curr.getBallsAndHolesCount() == 0)

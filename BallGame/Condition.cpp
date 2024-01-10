@@ -7,12 +7,12 @@
 namespace BallGame
 {
 
-Condition::Condition(const Condition & cond)
+Condition::Condition(const Condition& cond)
 {
-	this->balls_count = cond.getBallsAndHolesCount();
-	this->walls_count = cond.getWallsCount();
-	this->holes_count = cond.getBallsAndHolesCount();
-	this->size = cond.getSize();
+	this->balls_count = cond.balls_count;
+	this->walls_count = cond.walls_count;
+	this->holes_count = cond.holes_count;
+	this->size = cond.size;
 
 	std::list<Ball*>::const_iterator it_h;
 	for (it_h = cond.holes.begin(); it_h != cond.holes.end(); ++it_h)
@@ -22,12 +22,36 @@ Condition::Condition(const Condition & cond)
 	for (it_b = cond.balls.begin(); it_b != cond.balls.end(); ++it_b)
 		setBall((*it_b)->getNumber(), (*it_b)->getRow(), (*it_b)->getCol());
 
-	std::list<Wall*>::const_iterator it_w;
-	for (it_w = cond.walls.begin(); it_w != cond.walls.end(); ++it_w)
-		setWall((*it_w)->getRowFirst(), (*it_w)->getColFirst(), (*it_w)->getRowSec(), (*it_w)->getColSec());
+	this->walls = cond.walls;
+	this->came_from = cond.came_from;
+	this->answer = cond.answer;
+}
 
-	this->came_from = cond.getCameFrom();
-	this->answer = cond.getAnswer();
+Condition& Condition::operator=(const Condition& rhs)
+{
+	if (this == &rhs)
+	{
+		return *this;
+	}
+
+	this->balls_count = rhs.balls_count;
+	this->walls_count = rhs.walls_count;
+	this->holes_count = rhs.holes_count;
+	this->size = rhs.size;
+
+	std::list<Ball*>::const_iterator it_h;
+	for (it_h = rhs.holes.begin(); it_h != rhs.holes.end(); ++it_h)
+		setHole((*it_h)->getNumber(), (*it_h)->getRow(), (*it_h)->getCol());
+
+	std::list<Ball*>::const_iterator it_b;
+	for (it_b = rhs.balls.begin(); it_b != rhs.balls.end(); ++it_b)
+		setBall((*it_b)->getNumber(), (*it_b)->getRow(), (*it_b)->getCol());
+
+	this->walls = rhs.walls;
+	this->came_from = rhs.came_from;
+	this->answer = rhs.answer;
+
+	return *this;
 }
 
 Condition::Condition(int n_balls, int n_walls, int n_size)
@@ -49,10 +73,6 @@ Condition::~Condition()
 	std::list<Ball*>::iterator ball;
 	for (ball = balls.begin(); ball != balls.end(); ++ball)
 		delete *ball;
-
-	std::list<Wall*>::iterator wall;
-	for (wall = walls.begin(); wall != walls.end(); ++wall)
-		delete *wall;
 }
 
 void Condition::addToAnswer(DirectionType type) noexcept
@@ -87,12 +107,20 @@ std::string Condition::getAnswer() const
 	return answer;
 }
 
-void Condition::setCameFrom(const Condition * cf)
+void Condition::setCameFrom(const Condition& cf) noexcept
 {
-	came_from = new Condition(*cf);
+	try
+	{
+		came_from = std::make_shared<Condition>(cf);
+	}
+	catch (const std::exception& exception)
+	{
+		std::cout << "Unable to create previous step condition. Exception: " << exception.what() << std::endl;
+		came_from = nullptr;
+	}
 }
 
-Condition * Condition::getCameFrom() const
+std::shared_ptr<Condition> Condition::getCameFrom() const noexcept
 {
 	return came_from;
 }
@@ -109,10 +137,16 @@ void Condition::setHole(int num, int row, int col)
 	holes.push_back(hole);
 }
 
-void Condition::setWall(int row, int col, int row2, int col2)
+void Condition::setWall(int row, int col, int row2, int col2) noexcept
 {
-	Wall * wall = new Wall(row, col, row2, col2);
-	walls.push_back(wall);
+	try
+	{
+		walls.emplace_back(std::make_shared<Wall>(row, col, row2, col2));
+	}
+	catch (const std::exception& exception)
+	{
+		std::cout << "Unable to create wall. Exception: " << exception.what() << std::endl;
+	}
 }
 
 void Condition::deleteBall(int number)
@@ -146,17 +180,17 @@ void Condition::deleteHole(int number)
 		}
 }
 
-int Condition::getBallsAndHolesCount() const
+int Condition::getBallsAndHolesCount() const noexcept
 {
 	return balls_count;
 }
 
-int Condition::getWallsCount() const
+int Condition::getWallsCount() const noexcept
 {
 	return walls_count;
 }
 
-int Condition::getSize() const
+int Condition::getSize() const noexcept
 {
 	return size;
 }
@@ -167,7 +201,6 @@ bool Condition::goNorth()
 	std::list<Ball*>::iterator it_b;
 	std::list<Ball>::const_iterator it_b_new;
 	std::list<Ball*>::iterator it_h;
-	std::list<Wall*>::iterator it_w;
 	int row_new = 0;
 	int balls_count = 0;
 	int del_count = 0;
@@ -195,22 +228,24 @@ bool Condition::goNorth()
 		}
 
 		// цикл по стенам
-		for (it_w = walls.begin(); it_w != walls.end(); ++it_w)
+		for (const auto& wall : walls)
 		{
 			// ищутся шары до стены
-			if (((*it_w)->getColFirst() == (*it_w)->getColSec()) && ((*it_w)->getColFirst() == (*it_b)->getCol())
-				&& ((*it_w)->getRowFirst() >= (*it_b)->getRow()))
+			if ((wall->getColFirst() == wall->getColSec()) && (wall->getColFirst() == (*it_b)->getCol())
+				&& (wall->getRowFirst() >= (*it_b)->getRow()))
 			{
 				balls_count = 0;
 				for (it_b_new = balls_old.cbegin(); it_b_new != balls_old.cend(); ++it_b_new)
 				{
 					if (((*it_b_new).getCol() == (*it_b)->getCol())
 						&& ((*it_b_new).getRow() > (*it_b)->getRow())
-						&& ((*it_b_new).getRow() <= (*it_w)->getRowFirst()))
+						&& ((*it_b_new).getRow() <= wall->getRowFirst()))
+					{
 						++balls_count;
+					}
 				}
 				// рассчитывается новая строка
-				row_new = (*it_w)->getRowFirst() - balls_count;
+				row_new = wall->getRowFirst() - balls_count;
 				isWall = true;
 			}
 		}
@@ -290,7 +325,6 @@ bool Condition::goSouth()
 	std::list<Ball*>::iterator it_b;
 	std::list<Ball>::const_iterator it_b_new;
 	std::list<Ball*>::iterator it_h;
-	std::list<Wall*>::iterator it_w;
 	int row_new = 0;
 	int balls_count = 0;
 	int del_count = 0;
@@ -315,20 +349,22 @@ bool Condition::goSouth()
 				++balls_count;
 		}
 
-		for (it_w = walls.begin(); it_w != walls.end(); ++it_w)
+		for (const auto& wall : walls)
 		{
-			if (((*it_w)->getColFirst() == (*it_w)->getColSec()) && ((*it_w)->getColFirst() == (*it_b)->getCol())
-				&& ((*it_w)->getRowSec() <= (*it_b)->getRow()))
+			if ((wall->getColFirst() == wall->getColSec()) && (wall->getColFirst() == (*it_b)->getCol())
+				&& (wall->getRowSec() <= (*it_b)->getRow()))
 			{
 				balls_count = 0;
 				for (it_b_new = balls_old.cbegin(); it_b_new != balls_old.cend(); ++it_b_new)
 				{
 					if (((*it_b_new).getCol() == (*it_b)->getCol())
 						&& ((*it_b_new).getRow() < (*it_b)->getRow())
-						&& ((*it_b_new).getRow() >= (*it_w)->getRowSec()))
+						&& ((*it_b_new).getRow() >= wall->getRowSec()))
+					{
 						++balls_count;
+					}
 				}
-				row_new = (*it_w)->getRowSec() + balls_count;
+				row_new = wall->getRowSec() + balls_count;
 				isWall = true;
 			}
 		}
@@ -405,7 +441,6 @@ bool Condition::goEast()
 	std::list<Ball*>::iterator it_b;
 	std::list<Ball>::const_iterator it_b_new;
 	std::list<Ball*>::iterator it_h;
-	std::list<Wall*>::iterator it_w;
 	int col_new = 0;
 	int balls_count = 0;
 	int del_count = 0;
@@ -430,20 +465,22 @@ bool Condition::goEast()
 				++balls_count;
 		}
 
-		for (it_w = walls.begin(); it_w != walls.end(); ++it_w)
+		for (const auto& wall : walls)
 		{
-			if (((*it_w)->getRowFirst() == (*it_w)->getRowSec()) && ((*it_w)->getRowFirst() == (*it_b)->getRow())
-				&& ((*it_w)->getColSec() <= (*it_b)->getCol()))
+			if ((wall->getRowFirst() == wall->getRowSec()) && (wall->getRowFirst() == (*it_b)->getRow())
+				&& (wall->getColSec() <= (*it_b)->getCol()))
 			{
 				balls_count = 0;
 				for (it_b_new = balls_old.cbegin(); it_b_new != balls_old.cend(); ++it_b_new)
 				{
 					if (((*it_b_new).getRow() == (*it_b)->getRow())
 						&& ((*it_b_new).getCol() < (*it_b)->getCol())
-						&& ((*it_b_new).getCol() >= (*it_w)->getColSec()))
+						&& ((*it_b_new).getCol() >= wall->getColSec()))
+					{
 						++balls_count;
+					}
 				}
-				col_new = (*it_w)->getColSec() - balls_count;
+				col_new = wall->getColSec() - balls_count;
 				isWall = true;
 			}
 		}
@@ -519,7 +556,6 @@ bool Condition::goWest()
 	std::list<Ball*>::iterator it_b;
 	std::list<Ball>::const_iterator it_b_new;
 	std::list<Ball*>::iterator it_h;
-	std::list<Wall*>::iterator it_w;
 	int col_new = 0;
 	int balls_count = 0;
 	int del_count = 0;
@@ -544,20 +580,22 @@ bool Condition::goWest()
 				++balls_count;
 		}
 
-		for (it_w = walls.begin(); it_w != walls.end(); ++it_w)
+		for (const auto& wall : walls)
 		{
-			if (((*it_w)->getRowFirst() == (*it_w)->getRowSec()) && ((*it_w)->getRowFirst() == (*it_b)->getRow())
-				&& ((*it_w)->getColFirst() >= (*it_b)->getCol()))
+			if ((wall->getRowFirst() == wall->getRowSec()) && (wall->getRowFirst() == (*it_b)->getRow())
+				&& (wall->getColFirst() >= (*it_b)->getCol()))
 			{
 				balls_count = 0;
 				for (it_b_new = balls_old.cbegin(); it_b_new != balls_old.cend(); ++it_b_new)
 				{
 					if (((*it_b_new).getRow() == (*it_b)->getRow())
 						&& ((*it_b_new).getCol() > (*it_b)->getCol())
-						&& ((*it_b_new).getCol() <= (*it_w)->getColFirst()))
+						&& ((*it_b_new).getCol() <= wall->getColFirst()))
+					{
 						++balls_count;
+					}
 				}
-				col_new = (*it_w)->getColFirst() + balls_count;
+				col_new = wall->getColFirst() + balls_count;
 				isWall = true;
 			}
 		}
@@ -631,19 +669,25 @@ bool Condition::goWest()
 bool Condition::isFinish()
 {
 	if (balls_count != 1)
+	{
 		return false;
+	}
 
 	if ((came_from == nullptr) ||
 		(came_from->came_from == nullptr) ||
 		(came_from->came_from->came_from == nullptr) ||
 		(came_from->came_from->came_from->came_from == nullptr))
+	{
 		return false;
+	}
 
 	if ((balls_count != came_from->balls_count) ||
 		((balls_count != came_from->came_from->balls_count)) ||
 		(balls_count != came_from->came_from->came_from->balls_count) ||
 		(balls_count != came_from->came_from->came_from->came_from->balls_count))
+	{
 		return false;
+	}
 
 	std::list<Ball*>::const_iterator iter;
 	std::list<Ball*>::const_iterator iter_3;

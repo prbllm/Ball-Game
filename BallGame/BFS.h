@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+// C++
 #include <list>
 
 namespace BallGame
@@ -43,4 +44,5 @@ private:
 	void getNextPoints(const Condition& state, std::list<Condition>& states) noexcept;
 
 };
-};
+
+} // namespace BallGame

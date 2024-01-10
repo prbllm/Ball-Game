@@ -5,6 +5,7 @@
 
 // C++
 #include <list>
+#include <memory>
 #include <string>
 
 namespace BallGame
@@ -35,6 +36,11 @@ public:
 	 * \brief Конструктор копирования
 	 */
 	Condition(const Condition& cond);
+
+	/**
+	 * \brief Оператор копирования
+	 */
+	Condition& operator=(const Condition& rhs);
 
 	/**
 	 * \brief Конструктор
@@ -71,13 +77,13 @@ public:
 	 * \brief функция установки предыдущего состояния
 	 * \param cf предыдущее состояние
 	 */
-	void setCameFrom(const Condition * cf);
+	void setCameFrom(const Condition& cf) noexcept;
 
 	/**
 	 * \brief функция получения предыдущего состояния
 	 * \return предыдущее состояние
 	 */
-	[[nodiscard]] Condition * getCameFrom() const;
+	[[nodiscard]] std::shared_ptr<Condition> getCameFrom() const noexcept;
 
 	/**
 	 * \brief функция установки шары
@@ -103,7 +109,7 @@ public:
 	 * \param col2 столбец 2
 	 * \return
 	 */
-	void setWall(int row, int col, int row2, int col2);
+	void setWall(int row, int col, int row2, int col2) noexcept;
 
 	/**
 	 * \brief удаление мяча
@@ -121,19 +127,19 @@ public:
 	 * \brief функция возврата количества мячей и лунок
 	 * \return количество мячей и лунок
 	 */
-	[[nodiscard]] int getBallsAndHolesCount() const;
+	[[nodiscard]] int getBallsAndHolesCount() const noexcept;
 
 	/**
 	 * \brief функция возврата количества стен
 	 * \return количество стен
 	 */
-	[[nodiscard]] int getWallsCount() const;
+	[[nodiscard]] int getWallsCount() const noexcept;
 
 	/**
 	 * \brief функция возврата размера поля
 	 * \return размер поля
 	 */
-	[[nodiscard]] int getSize() const;
+	[[nodiscard]] int getSize() const noexcept;
 
 	/**
 	 * \brief движение на север
@@ -168,15 +174,15 @@ public:
 private:
 
 	std::list<Ball*> holes;	///< лунки
-	std::list<Wall*> walls;	///< стены
+	std::list<std::shared_ptr<Wall>> walls;	///< стены
 	std::list<Ball*> balls;	///< шары
 
 	int holes_count{ 0 };	///< количество лунок
 	int walls_count{ 0 };	///< количество стен
 	int balls_count{ 0 };	///< количество шаров
+	int size{ 0 };			///< размер поля
+	std::string answer;		///< путь
 
-	Condition* came_from{ nullptr }; ///< указатель на предыдущее состояние
-	std::string answer;				 ///< путь
-	int size{ 0 };				     ///< размер поля
+	std::shared_ptr<Condition> came_from{ nullptr }; ///< указатель на предыдущее состояние
 };
 } // namespace BallGame
