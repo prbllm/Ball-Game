@@ -1,41 +1,35 @@
 ﻿// Self
 #include "BFS.h"
 #include "Condition.h"
-#include "Constants.h"
 
 // C++
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <list>
-#include <sstream>
 
-using namespace BallGame;
-using namespace Names;
-
-/**
- * \brief функция загрузки данных из файла
- * \param cases список кейсов
- */
-void openFile(list<Condition> & cases)
+void openFile(std::list<BallGame::Condition>& cases)
 {
-	ifstream file(FILE_NAME, ios_base::in);
+	static const std::filesystem::path fileName{ std::filesystem::current_path() / "BallGame" / "data" / "input.txt"};
+	std::ifstream file(fileName, std::ios_base::in);
 
 	if (!file.is_open())
 	{
-		cout << "File " << FILE_NAME << " failed to open.";
+		std::cout << "File " << fileName << " failed to open.";
 		return;
 	}
-	bool isExit = false;
+	bool isExit{ false };
 
-	int size = 0, balls = 0, walls = 0;
-	int row = 0, col = 0;
-	int row2 = 0, col2 = 0;
+	int size{ 0 }, balls{ 0 }, walls{ 0 };
+	int row{ 0 }, col{ 0 };
+	int row2{ 0 }, col2{ 0 };
+	std::string line;
 
 	while (!isExit)
 	{
-		string line;
-		getline(file, line);
-		istringstream stream(line);
+		line.clear();
+		std::getline(file, line);
+		std::istringstream stream(line);
 		size = 0;
 		balls = 0;
 		walls = 0;
@@ -46,7 +40,7 @@ void openFile(list<Condition> & cases)
 			isExit = true;
 			break;
 		}
-		Condition cond(balls, walls, size);
+		BallGame::Condition cond(balls, walls, size);
 
 		for (int i = 0; i < balls; ++i)
 		{
@@ -54,7 +48,7 @@ void openFile(list<Condition> & cases)
 			getline(file, line);
 			row = 0;
 			col = 0;
-			istringstream stream(line);
+			std::istringstream stream(line);
 			stream >> row >> col;
 			cond.setBall(i, row, col);
 		}
@@ -65,7 +59,7 @@ void openFile(list<Condition> & cases)
 			getline(file, line);
 			row = 0;
 			col = 0;
-			istringstream stream(line);
+			std::istringstream stream(line);
 			stream >> row >> col;
 			cond.setHole(i, row, col);
 		}
@@ -78,7 +72,7 @@ void openFile(list<Condition> & cases)
 			col = 0;
 			row2 = 0;
 			col2 = 0;
-			istringstream stream(line);
+			std::istringstream stream(line);
 			stream >> row >> col >> row2 >> col2;
 			cond.setWall(row > row2 ? row2 : row, col > col2 ? col2 : col, row > row2 ? row : row2, col > col2 ? col2 : col2);
 		}
@@ -88,12 +82,13 @@ void openFile(list<Condition> & cases)
 
 int main()
 {
-	BFS bfs;
-	list<Condition> cases;
+	BallGame::BFS bfs;
+	std::list<BallGame::Condition> cases;
 	openFile(cases);
 
-	for (auto it = cases.begin(); it != cases.end(); ++it)
-		bfs.run(*it);
-
+	for (const auto& cond : cases)
+	{
+		bfs.run(cond);
+	}
     return 0;
 }

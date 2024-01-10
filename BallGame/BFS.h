@@ -5,41 +5,42 @@
 namespace BallGame
 {
 
-		class Condition;
+class Condition;
 
-		/**
-		 * \class BFS
-		 * \brief Класс поиска в ширину (breadth-first search)
-		 * \author Карунный Я.В.
-		 */
-	class BFS
-	{
-		int cases_count; ///< количество кейсов
+/**
+ * \class BFS
+ * \brief Класс поиска в ширину (breadth-first search)
+ */
+class BFS
+{
+public:
 
-		/**
-		 * \brief функция поиска следующих точек
-		 * \param state текущее состояние
-		 * \param states список возможных состояний
-		 */
-		void getNextPoints(const Condition & state, std::list<Condition> & states);
+	/**
+	 * \brief Конструктор по умолчанию
+	 */
+	explicit BFS() = default;
 
-		public:
+	/**
+	 * \brief Деструктор
+	 */
+	~BFS() = default;
 
-		/**
-		 * \brief Конструктор по умолчанию
-		 */
-		explicit BFS();
+	/**
+	 * \brief основная функция запуска алгоритма поиска
+	 * \param start начальное состояние
+	 */
+	void run(const Condition & start) noexcept;
 
-		/**
-		 * \brief Деструктор
-		 */
-		~BFS() = default;
+private:
 
-		/**
-		 * \brief основная функция запуска алгоритма поиска
-		 * \param start начальное состояние
-		 */
-		void run(const Condition & start);
+	int cases_count{ 1 };
 
-	};
+	/**
+	 * \brief функция поиска следующих точек
+	 * \param state текущее состояние
+	 * \param states список возможных состояний
+	 */
+	void getNextPoints(const Condition& state, std::list<Condition>& states) noexcept;
+
+};
 };
