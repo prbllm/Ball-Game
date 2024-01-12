@@ -17,16 +17,6 @@ class Bfs
 public:
 
 	/**
-	 * \brief Конструктор по умолчанию
-	 */
-	explicit Bfs() = default;
-
-	/**
-	 * \brief Деструктор
-	 */
-	~Bfs() = default;
-
-	/**
 	 * \brief основная функция запуска алгоритма поиска
 	 * \param start начальное состояние
 	 */

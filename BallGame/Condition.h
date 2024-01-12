@@ -19,6 +19,9 @@ class Condition
 {
 public:
 
+	/**
+	 * \brief Тип направления
+	 */
 	enum class DirectionType
 	{
 		North,
@@ -28,9 +31,10 @@ public:
 	};
 
 	/**
-	 * \brief Конструктор по умолчанию
+	 * \brief Конструктор
+	 * \param nSize размер поля
 	 */
-	explicit Condition() = default;
+	explicit Condition(int nSize);
 
 	/**
 	 * \brief Конструктор копирования
@@ -42,16 +46,10 @@ public:
 	 */
 	Condition& operator=(const Condition& rhs);
 
-	/**
-	 * \brief Конструктор
-	 * \param nSize размер поля
-	 */
-	explicit Condition(int nSize);
-
-	/**
-	 * \brief Деструктор
-	 */
+	Condition() = default;
 	~Condition() = default;
+	Condition(Condition&& other) noexcept = default;
+	Condition& operator=(Condition&& other) noexcept = default;
 
 	/**
 	 * \brief функция получения пути

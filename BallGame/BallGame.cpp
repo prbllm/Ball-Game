@@ -10,7 +10,7 @@
 
 void OpenFile(std::list<ball_game::Condition>& cases)
 {
-	static const std::filesystem::path fileName{ std::filesystem::current_path() / "BallGame" / "data" / "input.txt"};
+	static const std::filesystem::path fileName{ std::filesystem::current_path() / "BallGame" / "data" / "input.txt" };
 	std::ifstream file(fileName, std::ios_base::in);
 
 	if (!file.is_open())
@@ -18,65 +18,40 @@ void OpenFile(std::list<ball_game::Condition>& cases)
 		std::cout << "File " << fileName << " failed to open.";
 		return;
 	}
-	bool isExit{ false };
 
-	int size{ 0 }, balls{ 0 }, walls{ 0 };
-	int row{ 0 }, col{ 0 };
-	int row2{ 0 }, col2{ 0 };
-	std::string line;
-
-	while (!isExit)
+	int size{ 0 }, ballsCount{ 0 }, wallsCount{ 0 }, row{ 0 }, row2{ 0 }, col{ 0 }, col2{ 0 };
+	while (true)
 	{
-		line.clear();
-		std::getline(file, line);
-		std::istringstream stream(line);
-		size = 0;
-		balls = 0;
-		walls = 0;
-
-		stream >> size >> balls >> walls;
-		if (size == 0 && balls == 0 && walls == 0)
+		file >> size >> ballsCount >> wallsCount;
+		if (!size && !ballsCount && !wallsCount)
 		{
-			isExit = true;
 			break;
 		}
-		ball_game::Condition cond(size);
 
-		for (int i = 0; i < balls; ++i)
+		ball_game::Condition condition{ size };
+
+		for (int i = 0; i < ballsCount; ++i)
 		{
-			line.clear();
-			getline(file, line);
-			row = 0;
-			col = 0;
-			std::istringstream stream(line);
-			stream >> row >> col;
-			cond.SetBall(i, row, col);
+			file >> row >> col;
+			condition.SetBall(i, row, col);
 		}
 
-		for (int i = 0; i < balls; ++i)
+		for (int i = 0; i < ballsCount; ++i)
 		{
-			line.clear();
-			getline(file, line);
-			row = 0;
-			col = 0;
-			std::istringstream stream(line);
-			stream >> row >> col;
-			cond.SetHole(i, row, col);
+			file >> row >> col;
+			condition.SetHole(i, row, col);
 		}
 
-		for (int i = 0; i < walls; ++i)
+		for (int i = 0; i < wallsCount; ++i)
 		{
-			line.clear();
-			getline(file, line);
-			row = 0;
-			col = 0;
-			row2 = 0;
-			col2 = 0;
-			std::istringstream stream(line);
-			stream >> row >> col >> row2 >> col2;
-			cond.SetWall(row > row2 ? row2 : row, col > col2 ? col2 : col, row > row2 ? row : row2, col > col2 ? col2 : col2);
+			file >> row >> col >> row2 >> col2;
+			condition.SetWall(row > row2 ? row2 : row
+				, col > col2 ? col2 : col
+				, row > row2 ? row : row2
+				, col > col2 ? col : col2);
 		}
-		cases.push_back(cond);
+
+		cases.emplace_back(condition);
 	}
 }
 
