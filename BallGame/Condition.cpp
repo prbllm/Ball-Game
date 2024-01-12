@@ -9,19 +9,13 @@ namespace BallGame
 
 Condition::Condition(const Condition& cond)
 {
-	this->balls_count = cond.balls_count;
-	this->walls_count = cond.walls_count;
-	this->holes_count = cond.holes_count;
+	for (const auto& ball : cond.balls)
+	{
+		this->balls.emplace_back(std::make_shared<Ball>(*ball));
+	}
+
 	this->size = cond.size;
-
-	std::list<Ball*>::const_iterator it_h;
-	for (it_h = cond.holes.begin(); it_h != cond.holes.end(); ++it_h)
-		setHole((*it_h)->getNumber(), (*it_h)->getRow(), (*it_h)->getCol());
-
-	std::list<Ball*>::const_iterator it_b;
-	for (it_b = cond.balls.begin(); it_b != cond.balls.end(); ++it_b)
-		setBall((*it_b)->getNumber(), (*it_b)->getRow(), (*it_b)->getCol());
-
+	this->holes = cond.holes;
 	this->walls = cond.walls;
 	this->came_from = cond.came_from;
 	this->answer = cond.answer;
@@ -34,19 +28,13 @@ Condition& Condition::operator=(const Condition& rhs)
 		return *this;
 	}
 
-	this->balls_count = rhs.balls_count;
-	this->walls_count = rhs.walls_count;
-	this->holes_count = rhs.holes_count;
+	for (const auto& ball : rhs.balls)
+	{
+		this->balls.emplace_back(std::make_shared<Ball>(*ball));
+	}
+
 	this->size = rhs.size;
-
-	std::list<Ball*>::const_iterator it_h;
-	for (it_h = rhs.holes.begin(); it_h != rhs.holes.end(); ++it_h)
-		setHole((*it_h)->getNumber(), (*it_h)->getRow(), (*it_h)->getCol());
-
-	std::list<Ball*>::const_iterator it_b;
-	for (it_b = rhs.balls.begin(); it_b != rhs.balls.end(); ++it_b)
-		setBall((*it_b)->getNumber(), (*it_b)->getRow(), (*it_b)->getCol());
-
+	this->holes = rhs.holes;
 	this->walls = rhs.walls;
 	this->came_from = rhs.came_from;
 	this->answer = rhs.answer;
@@ -54,25 +42,9 @@ Condition& Condition::operator=(const Condition& rhs)
 	return *this;
 }
 
-Condition::Condition(int n_balls, int n_walls, int n_size)
+Condition::Condition(int n_size)
 {
-	this->holes_count = n_balls;
-	this->walls_count = n_walls;
-	this->balls_count = n_balls;
-
-	this->came_from = nullptr;
 	this->size = n_size;
-}
-
-Condition::~Condition()
-{
-	std::list<Ball*>::iterator hole;
-	for (hole = holes.begin(); hole != holes.end(); ++hole)
-		delete *hole;
-
-	std::list<Ball*>::iterator ball;
-	for (ball = balls.begin(); ball != balls.end(); ++ball)
-		delete *ball;
 }
 
 void Condition::addToAnswer(DirectionType type) noexcept
@@ -125,16 +97,28 @@ std::shared_ptr<Condition> Condition::getCameFrom() const noexcept
 	return came_from;
 }
 
-void Condition::setBall(int num, int row, int col)
+void Condition::setBall(int num, int row, int col) noexcept
 {
-	Ball * ball = new Ball(row, col, num);
-	balls.push_back(ball);
+	try
+	{
+		balls.emplace_back(std::make_shared<Ball>(row, col, num));
+	}
+	catch (const std::exception& exception)
+	{
+		std::cout << "Unable to create ball. Exception: " << exception.what() << std::endl;
+	}
 }
 
-void Condition::setHole(int num, int row, int col)
+void Condition::setHole(int num, int row, int col) noexcept
 {
-	Ball * hole = new Ball(row, col, num);
-	holes.push_back(hole);
+	try
+	{
+		holes.emplace_back(std::make_shared<Ball>(row, col, num));
+	}
+	catch (const std::exception& exception)
+	{
+		std::cout << "Unable to create hole. Exception: " << exception.what() << std::endl;
+	}
 }
 
 void Condition::setWall(int row, int col, int row2, int col2) noexcept
@@ -149,45 +133,34 @@ void Condition::setWall(int row, int col, int row2, int col2) noexcept
 	}
 }
 
-void Condition::deleteBall(int number)
+void Condition::DeleteDataByNumber(int number) noexcept
 {
-	std::list<Ball*>::iterator ball;
-
-	for (ball = balls.begin(); ball != balls.end(); ball++)
+	const auto run = [number](std::list<std::shared_ptr<Ball>>& list)
 	{
-		if ((*ball)->getNumber() == number)
+		try
 		{
-			delete *ball;
-			ball = balls.erase(ball);
-			--this->balls_count;
-			if (ball == balls.end())
-				break;
+			for (auto it = list.cbegin(); it != list.cend(); ++it)
+			{
+				if ((*it)->getNumber() == number)
+				{
+					list.erase(it);
+					break;
+				}
+			}
 		}
-	}
-}
+		catch (const std::exception& exception)
+		{
+			std::cout << "Unable to delete ball and hole by number (" << number << "). Exception: " << exception.what() << std::endl;
+		}
+	};
 
-void Condition::deleteHole(int number)
-{
-	std::list<Ball*>::iterator hole;
-	for (hole = holes.begin(); hole != holes.end(); ++hole)
-		if ((*hole)->getNumber() == number)
-		{
-			delete *hole;
-			hole = holes.erase(hole);
-			--this->holes_count;
-			if (hole == holes.end())
-				break;
-		}
+	run(balls);
+	run(holes);
 }
 
 int Condition::getBallsAndHolesCount() const noexcept
 {
-	return balls_count;
-}
-
-int Condition::getWallsCount() const noexcept
-{
-	return walls_count;
+	return balls.size();
 }
 
 int Condition::getSize() const noexcept
@@ -198,9 +171,6 @@ int Condition::getSize() const noexcept
 bool Condition::goNorth()
 {
 	// все 4 функции аналогичные, различия только по направлению движения
-	std::list<Ball*>::iterator it_b;
-	std::list<Ball>::const_iterator it_b_new;
-	std::list<Ball*>::iterator it_h;
 	int row_new = 0;
 	int balls_count = 0;
 	int del_count = 0;
@@ -208,42 +178,43 @@ bool Condition::goNorth()
 
 	std::list<int> numbers;
 
-	std::list<Ball> balls_old;
-	for (it_b = balls.begin(); it_b != balls.end(); ++it_b)
-		balls_old.push_back(*(*it_b));
+	std::list<Ball> oldBalls;
+	for (const auto& ball : balls)
+	{
+		oldBalls.emplace_back(*ball);
+	}
 
 	// цикл по всем шарам
-	for (it_b = balls.begin(); it_b != balls.end(); ++it_b)
+	for (const auto& ball : balls)
 	{
 		row_new = 0;
 		balls_count = 0;
 		isWall = false;
 
 		// ищутся шары до конца поля
-		for (it_b_new = balls_old.cbegin(); it_b_new != balls_old.cend(); ++it_b_new)
+		for (const auto& oldBall : oldBalls)
 		{
-			if (((*it_b_new).getCol() == (*it_b)->getCol())
-				&& ((*it_b_new).getRow() > (*it_b)->getRow()))
+			if (oldBall.getCol() == ball->getCol() && oldBall.getRow() > ball->getRow())
+			{
 				++balls_count;
+			}
 		}
 
 		// цикл по стенам
 		for (const auto& wall : walls)
 		{
 			// ищутся шары до стены
-			if ((wall->getColFirst() == wall->getColSec()) && (wall->getColFirst() == (*it_b)->getCol())
-				&& (wall->getRowFirst() >= (*it_b)->getRow()))
+			if (wall->getColFirst() == wall->getColSec() && wall->getColFirst() == ball->getCol() && wall->getRowFirst() >= ball->getRow())
 			{
 				balls_count = 0;
-				for (it_b_new = balls_old.cbegin(); it_b_new != balls_old.cend(); ++it_b_new)
+				for (const auto& oldBall : oldBalls)
 				{
-					if (((*it_b_new).getCol() == (*it_b)->getCol())
-						&& ((*it_b_new).getRow() > (*it_b)->getRow())
-						&& ((*it_b_new).getRow() <= wall->getRowFirst()))
+					if (oldBall.getCol() == ball->getCol() && oldBall.getRow() > ball->getRow() && oldBall.getRow() <= wall->getRowFirst())
 					{
 						++balls_count;
 					}
 				}
+
 				// рассчитывается новая строка
 				row_new = wall->getRowFirst() - balls_count;
 				isWall = true;
@@ -251,70 +222,74 @@ bool Condition::goNorth()
 		}
 
 		if (!isWall)
+		{
 			row_new = size - 1 - balls_count;
+		}
 
 		// цикл по лункам
-		for (it_h = holes.begin(); it_h != holes.end(); ++it_h)
+		for (const auto& hole : holes)
 		{
-			if (((*it_h)->getCol() == (*it_b)->getCol()) && ((*it_h)->getRow() <= row_new) && ((*it_h)->getRow() > (*it_b)->getRow()))
+			if (hole->getCol() == ball->getCol() && (hole->getRow() <= row_new) && (hole->getRow() > ball->getRow()))
 			{
 				// если есть лунка нужная на пути, запоминаем номер
-				if (((*it_h)->getNumber() == (*it_b)->getNumber()) && (balls_count == 0))
+				if (hole->getNumber() == ball->getNumber() && balls_count == 0)
 				{
-					numbers.push_back((*it_h)->getNumber());
+					numbers.push_back(hole->getNumber());
 					++del_count;
 				}
 				else
+				{
 					return false;
+				}
 			}
-			if (it_h == holes.end())
-				break;
 		}
-		if (it_b == balls.end())
-			break;
+
 		if (del_count == 0)
-			(*it_b)->setRow(row_new);
+		{
+			ball->setRow(row_new);
+		}
 	}
 
 	// удаляем шары и лунки
-	for (int i : numbers)
+	for (const auto& i : numbers)
 	{
-		deleteBall(i);
-		deleteHole(i);
+		DeleteDataByNumber(i);
 	}
 
 	// отсеивание лишних движений, которые не изменяют позицию
-	if ((came_from != nullptr) &&
-		(came_from->came_from != nullptr))
+	if (came_from && came_from->came_from)
 	{
-		std::list<Ball*>::const_iterator iter;
-		std::list<Ball*>::const_iterator iter_3;
-		std::list<Ball*>::const_iterator iter_2;
-		int count_3 = 0, count_2 = 0;
-		for (iter = balls.cbegin(); iter != balls.cend(); ++iter)
+		int count3{ 0 }, count2{ 0 };
+		for (const auto& ball : balls)
 		{
-			for (iter_3 = came_from->came_from->balls.cbegin(); iter_3 != came_from->came_from->balls.cend(); ++iter_3)
+			for (const auto& oldBall : came_from->came_from->balls)
 			{
-				if ((*iter)->getNumber() == (*iter_3)->getNumber())
+				if (ball->getNumber() == oldBall->getNumber())
 				{
-					if (((*iter)->getRow() == (*iter_3)->getRow()) &&
-						((*iter)->getCol() == (*iter_3)->getCol()))
-						++count_3;
+					if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+					{
+						++count3;
+					}
 				}
 			}
-			for (iter_2 = came_from->balls.cbegin(); iter_2 != came_from->balls.cend(); ++iter_2)
+
+			for (const auto& oldBall : came_from->balls)
 			{
-				if ((*iter)->getNumber() == (*iter_2)->getNumber())
+				if (ball->getNumber() == oldBall->getNumber())
 				{
-					if (((*iter)->getRow() == (*iter_2)->getRow()) &&
-						((*iter)->getCol() == (*iter_2)->getCol()))
-						++count_2;
+					if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+					{
+						++count2;
+					}
 				}
 			}
 		}
-		if (((count_3 == this->balls_count) && (this->balls_count == came_from->came_from->balls_count)) ||
-			((count_2 == this->balls_count)) && (came_from->balls_count == this->balls_count))
+
+		if ((count3 == getBallsAndHolesCount() && getBallsAndHolesCount() == came_from->came_from->getBallsAndHolesCount()) ||
+			count2 == getBallsAndHolesCount() && came_from->getBallsAndHolesCount() == getBallsAndHolesCount())
+		{
 			return false;
+		}
 	}
 	addToAnswer(DirectionType::North);
 	return true;
@@ -322,9 +297,6 @@ bool Condition::goNorth()
 
 bool Condition::goSouth()
 {
-	std::list<Ball*>::iterator it_b;
-	std::list<Ball>::const_iterator it_b_new;
-	std::list<Ball*>::iterator it_h;
 	int row_new = 0;
 	int balls_count = 0;
 	int del_count = 0;
@@ -332,34 +304,34 @@ bool Condition::goSouth()
 
 	std::list<int> numbers;
 
-	std::list<Ball> balls_old;
-	for (it_b = balls.begin(); it_b != balls.end(); ++it_b)
-		balls_old.push_back(*(*it_b));
+	std::list<Ball> oldBalls;
+	for (const auto& ball : balls)
+	{
+		oldBalls.emplace_back(*ball);
+	}
 
-	for (it_b = balls.begin(); it_b != balls.end(); ++it_b)
+	for (const auto& ball : balls)
 	{
 		row_new = 0;
 		balls_count = 0;
 		isWall = false;
 
-		for (it_b_new = balls_old.cbegin(); it_b_new != balls_old.cend(); ++it_b_new)
+		for (const auto& oldBall : oldBalls)
 		{
-			if (((*it_b_new).getCol() == (*it_b)->getCol())
-				&& ((*it_b_new).getRow() < (*it_b)->getRow()))
+			if (oldBall.getCol() == ball->getCol() && oldBall.getRow() < ball->getRow())
+			{
 				++balls_count;
+			}
 		}
 
 		for (const auto& wall : walls)
 		{
-			if ((wall->getColFirst() == wall->getColSec()) && (wall->getColFirst() == (*it_b)->getCol())
-				&& (wall->getRowSec() <= (*it_b)->getRow()))
+			if (wall->getColFirst() == wall->getColSec() && wall->getColFirst() == ball->getCol() && wall->getRowSec() <= ball->getRow())
 			{
 				balls_count = 0;
-				for (it_b_new = balls_old.cbegin(); it_b_new != balls_old.cend(); ++it_b_new)
+				for (const auto& oldBall : oldBalls)
 				{
-					if (((*it_b_new).getCol() == (*it_b)->getCol())
-						&& ((*it_b_new).getRow() < (*it_b)->getRow())
-						&& ((*it_b_new).getRow() >= wall->getRowSec()))
+					if (oldBall.getCol() == ball->getCol() && oldBall.getRow() < ball->getRow() && oldBall.getRow() >= wall->getRowSec())
 					{
 						++balls_count;
 					}
@@ -370,67 +342,69 @@ bool Condition::goSouth()
 		}
 
 		if (!isWall)
-			row_new = balls_count;
-
-		for (it_h = holes.begin(); it_h != holes.end(); ++it_h)
 		{
-			if (((*it_h)->getCol() == (*it_b)->getCol()) && ((*it_h)->getRow() >= row_new) && ((*it_h)->getRow() < (*it_b)->getRow()))
+			row_new = balls_count;
+		}
+
+		for (const auto& hole : holes)
+		{
+			if (hole->getCol() == ball->getCol() && hole->getRow() >= row_new && hole->getRow() < ball->getRow())
 			{
-				if (((*it_h)->getNumber() == (*it_b)->getNumber()) && (balls_count == 0))
+				if (hole->getNumber() == ball->getNumber() && balls_count == 0)
 				{
-					numbers.push_back((*it_h)->getNumber());
+					numbers.push_back(hole->getNumber());
 					++del_count;
 				}
 				else
+				{
 					return false;
+				}
 			}
-			if (it_h == holes.end())
-				break;
 		}
-		if (it_b == balls.end())
-			break;
+
 		if (del_count == 0)
-			(*it_b)->setRow(row_new);
-	}
-
-	for (int i : numbers)
-	{
-		deleteBall(i);
-		deleteHole(i);
-	}
-
-	if ((came_from != nullptr) &&
-		(came_from->came_from != nullptr))
-	{
-		std::list<Ball*>::const_iterator iter;
-		std::list<Ball*>::const_iterator iter_3;
-		std::list<Ball*>::const_iterator iter_2;
-		int count_3 = 0, count_2 = 0;
-		for (iter = balls.cbegin(); iter != balls.cend(); ++iter)
 		{
-			for (iter_3 = came_from->came_from->balls.cbegin(); iter_3 != came_from->came_from->balls.cend(); ++iter_3)
+			ball->setRow(row_new);
+		}
+	}
+
+	for (const auto& i : numbers)
+	{
+		DeleteDataByNumber(i);
+	}
+
+	if (came_from && came_from->came_from)
+	{
+		int count3{ 0 }, count2{ 0 };
+		for (const auto& ball : balls)
+		{
+			for (const auto& oldBall : came_from->came_from->balls)
 			{
-				if ((*iter)->getNumber() == (*iter_3)->getNumber())
+				if (ball->getNumber() == oldBall->getNumber())
 				{
-					if (((*iter)->getRow() == (*iter_3)->getRow()) &&
-						((*iter)->getCol() == (*iter_3)->getCol()))
-						++count_3;
+					if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+					{
+						++count3;
+					}
 				}
 			}
 
-			for (iter_2 = came_from->balls.cbegin(); iter_2 != came_from->balls.cend(); ++iter_2)
+			for (const auto& oldBall : came_from->balls)
 			{
-				if ((*iter)->getNumber() == (*iter_2)->getNumber())
+				if (ball->getNumber() == oldBall->getNumber())
 				{
-					if (((*iter)->getRow() == (*iter_2)->getRow()) &&
-						((*iter)->getCol() == (*iter_2)->getCol()))
-						++count_2;
+					if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+					{
+						++count2;
+					}
 				}
 			}
 		}
-		if (((count_3 == this->balls_count) && (this->balls_count == came_from->came_from->balls_count)) ||
-			((count_2 == this->balls_count)) && (came_from->balls_count == this->balls_count))
+		if ((count3 == getBallsAndHolesCount() && getBallsAndHolesCount() == came_from->came_from->getBallsAndHolesCount()) ||
+			count2 == getBallsAndHolesCount() && came_from->getBallsAndHolesCount() == getBallsAndHolesCount())
+		{
 			return false;
+		}
 	}
 	addToAnswer(DirectionType::South);
 	return true;
@@ -438,9 +412,6 @@ bool Condition::goSouth()
 
 bool Condition::goEast()
 {
-	std::list<Ball*>::iterator it_b;
-	std::list<Ball>::const_iterator it_b_new;
-	std::list<Ball*>::iterator it_h;
 	int col_new = 0;
 	int balls_count = 0;
 	int del_count = 0;
@@ -448,34 +419,35 @@ bool Condition::goEast()
 
 	std::list<int> numbers;
 
-	std::list<Ball> balls_old;
-	for (it_b = balls.begin(); it_b != balls.end(); ++it_b)
-		balls_old.push_back(*(*it_b));
+	std::list<Ball> oldBalls;
+	for (const auto& ball : balls)
+	{
+		oldBalls.emplace_back(*ball);
+	}
 
-	for (it_b = balls.begin(); it_b != balls.end(); ++it_b)
+	for (const auto& ball : balls)
 	{
 		col_new = 0;
 		balls_count = 0;
 		isWall = false;
 
-		for (it_b_new = balls_old.cbegin(); it_b_new != balls_old.cend(); ++it_b_new)
+		for (const auto& oldBall : oldBalls)
 		{
-			if (((*it_b_new).getRow() == (*it_b)->getRow())
-				&& ((*it_b_new).getCol() < (*it_b)->getCol()))
+			if (oldBall.getRow() == ball->getRow() && oldBall.getCol() < ball->getCol())
+			{
 				++balls_count;
+			}
 		}
 
 		for (const auto& wall : walls)
 		{
-			if ((wall->getRowFirst() == wall->getRowSec()) && (wall->getRowFirst() == (*it_b)->getRow())
-				&& (wall->getColSec() <= (*it_b)->getCol()))
+			if ((wall->getRowFirst() == wall->getRowSec()) && (wall->getRowFirst() == ball->getRow())
+				&& (wall->getColSec() <= ball->getCol()))
 			{
 				balls_count = 0;
-				for (it_b_new = balls_old.cbegin(); it_b_new != balls_old.cend(); ++it_b_new)
+				for (const auto& oldBall : oldBalls)
 				{
-					if (((*it_b_new).getRow() == (*it_b)->getRow())
-						&& ((*it_b_new).getCol() < (*it_b)->getCol())
-						&& ((*it_b_new).getCol() >= wall->getColSec()))
+					if (oldBall.getRow() == ball->getRow() && oldBall.getCol() < ball->getCol() && oldBall.getCol() >= wall->getColSec())
 					{
 						++balls_count;
 					}
@@ -486,66 +458,69 @@ bool Condition::goEast()
 		}
 
 		if (!isWall)
-			col_new = balls_count;
-
-		for (it_h = holes.begin(); it_h != holes.end(); ++it_h)
 		{
-			if (((*it_h)->getRow() == (*it_b)->getRow()) && ((*it_h)->getCol() >= col_new) && ((*it_h)->getCol() < (*it_b)->getCol()))
+			col_new = balls_count;
+		}
+
+		for (const auto& hole : holes)
+		{
+			if ((hole->getRow() == ball->getRow()) && (hole->getCol() >= col_new) && (hole->getCol() < ball->getCol()))
 			{
-				if (((*it_h)->getNumber() == (*it_b)->getNumber()) && (balls_count == 0))
+				if ((hole->getNumber() == ball->getNumber()) && (balls_count == 0))
 				{
-					numbers.push_back((*it_h)->getNumber());
+					numbers.push_back(hole->getNumber());
 					++del_count;
 				}
 				else
+				{
 					return false;
+				}
 			}
-			if (it_h == holes.end())
-				break;
 		}
-		if (it_b == balls.end())
-			break;
+
 		if (del_count == 0)
-			(*it_b)->setCol(col_new);
-	}
-
-	for (int i : numbers)
-	{
-		deleteBall(i);
-		deleteHole(i);
-	}
-
-	if ((came_from != nullptr) &&
-		(came_from->came_from != nullptr))
-	{
-		std::list<Ball*>::const_iterator iter;
-		std::list<Ball*>::const_iterator iter_3;
-		std::list<Ball*>::const_iterator iter_2;
-		int count_3 = 0, count_2 = 0;
-		for (iter = balls.cbegin(); iter != balls.cend(); ++iter)
 		{
-			for (iter_3 = came_from->came_from->balls.cbegin(); iter_3 != came_from->came_from->balls.cend(); ++iter_3)
+			ball->setCol(col_new);
+		}
+	}
+
+	for (const auto& i : numbers)
+	{
+		DeleteDataByNumber(i);
+	}
+
+	if (came_from && came_from->came_from)
+	{
+		int count3{ 0 }, count2{ 0 };
+		for (const auto& ball : balls)
+		{
+			for (const auto& oldBall : came_from->came_from->balls)
 			{
-				if ((*iter)->getNumber() == (*iter_3)->getNumber())
+				if (ball->getNumber() == oldBall->getNumber())
 				{
-					if (((*iter)->getRow() == (*iter_3)->getRow()) &&
-						((*iter)->getCol() == (*iter_3)->getCol()))
-						++count_3;
+					if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+					{
+						++count3;
+					}
 				}
 			}
-			for (iter_2 = came_from->balls.cbegin(); iter_2 != came_from->balls.cend(); ++iter_2)
+
+			for (const auto& oldBall : came_from->balls)
 			{
-				if ((*iter)->getNumber() == (*iter_2)->getNumber())
+				if (ball->getNumber() == oldBall->getNumber())
 				{
-					if (((*iter)->getRow() == (*iter_2)->getRow()) &&
-						((*iter)->getCol() == (*iter_2)->getCol()))
-						++count_2;
+					if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+					{
+						++count2;
+					}
 				}
 			}
 		}
-		if (((count_3 == this->balls_count) && (this->balls_count == came_from->came_from->balls_count)) ||
-			((count_2 == this->balls_count)) && (came_from->balls_count == this->balls_count))
+		if ((count3 == getBallsAndHolesCount() && getBallsAndHolesCount() == came_from->came_from->getBallsAndHolesCount()) ||
+			count2 == getBallsAndHolesCount() && came_from->getBallsAndHolesCount() == getBallsAndHolesCount())
+		{
 			return false;
+		}
 	}
 	addToAnswer(DirectionType::East);
 	return true;
@@ -553,9 +528,6 @@ bool Condition::goEast()
 
 bool Condition::goWest()
 {
-	std::list<Ball*>::iterator it_b;
-	std::list<Ball>::const_iterator it_b_new;
-	std::list<Ball*>::iterator it_h;
 	int col_new = 0;
 	int balls_count = 0;
 	int del_count = 0;
@@ -563,34 +535,34 @@ bool Condition::goWest()
 
 	std::list<int> numbers;
 
-	std::list<Ball> balls_old;
-	for (it_b = balls.begin(); it_b != balls.end(); ++it_b)
-		balls_old.push_back(*(*it_b));
+	std::list<Ball> oldBalls;
+	for (const auto& ball : balls)
+	{
+		oldBalls.emplace_back(*ball);
+	}
 
-	for (it_b = balls.begin(); it_b != balls.end(); ++it_b)
+	for (const auto& ball : balls)
 	{
 		col_new = 0;
 		balls_count = 0;
 		isWall = false;
 
-		for (it_b_new = balls_old.cbegin(); it_b_new != balls_old.cend(); ++it_b_new)
+		for (const auto& oldBall : oldBalls)
 		{
-			if (((*it_b_new).getRow() == (*it_b)->getRow())
-				&& ((*it_b_new).getCol() > (*it_b)->getCol()))
+			if (oldBall.getRow() == ball->getRow() && oldBall.getCol() > ball->getCol())
+			{
 				++balls_count;
+			}
 		}
 
 		for (const auto& wall : walls)
 		{
-			if ((wall->getRowFirst() == wall->getRowSec()) && (wall->getRowFirst() == (*it_b)->getRow())
-				&& (wall->getColFirst() >= (*it_b)->getCol()))
+			if (wall->getRowFirst() == wall->getRowSec() && wall->getRowFirst() == ball->getRow() && wall->getColFirst() >= ball->getCol())
 			{
 				balls_count = 0;
-				for (it_b_new = balls_old.cbegin(); it_b_new != balls_old.cend(); ++it_b_new)
+				for (const auto& oldBall : oldBalls)
 				{
-					if (((*it_b_new).getRow() == (*it_b)->getRow())
-						&& ((*it_b_new).getCol() > (*it_b)->getCol())
-						&& ((*it_b_new).getCol() <= wall->getColFirst()))
+					if (oldBall.getRow() == ball->getRow() && oldBall.getCol() > ball->getCol() && oldBall.getCol() <= wall->getColFirst())
 					{
 						++balls_count;
 					}
@@ -601,131 +573,128 @@ bool Condition::goWest()
 		}
 
 		if (!isWall)
-			col_new = size - 1 - balls_count;
-
-		for (it_h = holes.begin(); it_h != holes.end(); ++it_h)
 		{
-			if (((*it_h)->getRow() == (*it_b)->getRow()) && ((*it_h)->getCol() <= col_new) && ((*it_h)->getCol() > (*it_b)->getCol()))
+			col_new = size - 1 - balls_count;
+		}
+
+		for (const auto& hole : holes)
+		{
+			if (hole->getRow() == ball->getRow() && hole->getCol() <= col_new && hole->getCol() > ball->getCol())
 			{
-				if (((*it_h)->getNumber() == (*it_b)->getNumber()) && (balls_count == 0))
+				if (hole->getNumber() == ball->getNumber() && balls_count == 0)
 				{
-					numbers.push_back((*it_h)->getNumber());
+					numbers.push_back(hole->getNumber());
 					++del_count;
 				}
 				else
+				{
 					return false;
+				}
 			}
-			if (it_h == holes.end())
-				break;
 		}
-		if (it_b == balls.end())
-			break;
+
 		if (del_count == 0)
-			(*it_b)->setCol(col_new);
+		{
+			ball->setCol(col_new);
+		}
 	}
 
-	for (int i : numbers)
+	for (const auto& i : numbers)
 	{
-		deleteBall(i);
-		deleteHole(i);
+		DeleteDataByNumber(i);
 	}
 
 	if ((came_from != nullptr) &&
 		(came_from->came_from != nullptr))
 	{
-		std::list<Ball*>::const_iterator iter;
-		std::list<Ball*>::const_iterator iter_3;
-		std::list<Ball*>::const_iterator iter_2;
-		int count_3 = 0, count_2 = 0;
-		for (iter = balls.cbegin(); iter != balls.cend(); ++iter)
+		int count3{ 0 }, count2{ 0 };
+		for (const auto& ball : balls)
 		{
-			for (iter_3 = came_from->came_from->balls.cbegin(); iter_3 != came_from->came_from->balls.cend(); ++iter_3)
+			for (const auto& oldBall : came_from->came_from->balls)
 			{
-				if ((*iter)->getNumber() == (*iter_3)->getNumber())
+				if (ball->getNumber() == oldBall->getNumber())
 				{
-					if (((*iter)->getRow() == (*iter_3)->getRow()) &&
-						((*iter)->getCol() == (*iter_3)->getCol()))
-						++count_3;
+					if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+					{
+						++count3;
+					}
 				}
 			}
-			for (iter_2 = came_from->balls.cbegin(); iter_2 != came_from->balls.cend(); ++iter_2)
+
+			for (const auto& oldBall : came_from->balls)
 			{
-				if ((*iter)->getNumber() == (*iter_2)->getNumber())
+				if (ball->getNumber() == oldBall->getNumber())
 				{
-					if (((*iter)->getRow() == (*iter_2)->getRow()) &&
-						((*iter)->getCol() == (*iter_2)->getCol()))
-						++count_2;
+					if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+					{
+						++count2;
+					}
 				}
 			}
 		}
-		if (((count_3 == this->balls_count) && (this->balls_count == came_from->came_from->balls_count)) ||
-			((count_2 == this->balls_count)) && (came_from->balls_count == this->balls_count))
+		if ((count3 == getBallsAndHolesCount() && getBallsAndHolesCount() == came_from->came_from->getBallsAndHolesCount()) ||
+			count2 == getBallsAndHolesCount() && came_from->getBallsAndHolesCount() == getBallsAndHolesCount())
+		{
 			return false;
+		}
 	}
 	addToAnswer(DirectionType::West);
 	return true;
 }
 
-bool Condition::isFinish()
+bool Condition::IsFinish()
 {
-	if (balls_count != 1)
+	if (getBallsAndHolesCount() != 1)
 	{
 		return false;
 	}
 
-	if ((came_from == nullptr) ||
-		(came_from->came_from == nullptr) ||
-		(came_from->came_from->came_from == nullptr) ||
-		(came_from->came_from->came_from->came_from == nullptr))
+	if (!came_from || !came_from->came_from || !came_from->came_from->came_from || !came_from->came_from->came_from->came_from)
 	{
 		return false;
 	}
 
-	if ((balls_count != came_from->balls_count) ||
-		((balls_count != came_from->came_from->balls_count)) ||
-		(balls_count != came_from->came_from->came_from->balls_count) ||
-		(balls_count != came_from->came_from->came_from->came_from->balls_count))
+	if (getBallsAndHolesCount() != came_from->getBallsAndHolesCount() ||
+		getBallsAndHolesCount() != came_from->came_from->getBallsAndHolesCount() ||
+		getBallsAndHolesCount() != came_from->came_from->came_from->getBallsAndHolesCount() ||
+		getBallsAndHolesCount() != came_from->came_from->came_from->came_from->getBallsAndHolesCount())
 	{
 		return false;
 	}
 
-	std::list<Ball*>::const_iterator iter;
-	std::list<Ball*>::const_iterator iter_3;
-	std::list<Ball*>::const_iterator iter_4;
-	int count_3 = 0, count_4 = 0;
+	int count3{ 0 }, count4{ 0 };
 
-	for (iter = balls.cbegin(); iter != balls.cend(); ++iter)
+	for (const auto& ball : balls)
 	{
-		for (iter_3 = came_from->came_from->came_from->balls.cbegin(); iter_3 != came_from->came_from->came_from->balls.cend(); ++iter_3)
+		for (const auto& oldBall : came_from->came_from->came_from->balls)
 		{
-			if ((*iter)->getNumber() == (*iter_3)->getNumber())
+			if (ball->getNumber() == oldBall->getNumber())
 			{
-				if (((*iter)->getRow() == (*iter_3)->getRow()) &&
-					((*iter)->getCol() == (*iter_3)->getCol()))
-					++count_3;
+				if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+				{
+					++count3;
+				}
 			}
 		}
 
-		for (iter_4 = came_from->came_from->came_from->came_from->balls.cbegin(); iter_4 != came_from->came_from->came_from->came_from->balls.cend(); ++iter_4)
+		for (const auto& oldBall : came_from->came_from->came_from->came_from->balls)
 		{
-			if ((*iter)->getNumber() == (*iter_4)->getNumber())
+			if (ball->getNumber() == oldBall->getNumber())
 			{
-				if (((*iter)->getRow() == (*iter_4)->getRow()) &&
-					((*iter)->getCol() == (*iter_4)->getCol()))
-					++count_4;
+				if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+				{
+					++count4;
+				}
 			}
 		}
 	}
 
-	if ((count_3 == balls_count) || (count_4 == balls_count))
+	if (count3 == getBallsAndHolesCount() || count4 == getBallsAndHolesCount())
 	{
 		answer = "Impossible";
 		return true;
 	}
-	else
-	{
-		return false;
-	}
+	return false;
 }
 
 }

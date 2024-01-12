@@ -45,15 +45,14 @@ public:
 	/**
 	 * \brief Конструктор
 	 * \param n_balls количество шаров
-	 * \param n_walls количество стен
 	 * \param n_size размер поля
 	 */
-	Condition(int n_balls, int n_walls, int n_size);
+	explicit Condition(int n_size);
 
 	/**
 	 * \brief Деструктор
 	 */
-	~Condition();
+	~Condition() = default;
 
 	/**
 	 * \brief функция добавления текущего направления
@@ -91,7 +90,7 @@ public:
 	 * \param row строка
 	 * \param col столбец
 	 */
-	void setBall(int num, int row, int col);
+	void setBall(int num, int row, int col) noexcept;
 
 	/**
 	 * \brief функция установки лунки
@@ -99,7 +98,7 @@ public:
 	 * \param row строка
 	 * \param col столбец
 	 */
-	void setHole(int num, int row, int col);
+	void setHole(int num, int row, int col) noexcept;
 
 	/**
 	 * \brief функция установки стены
@@ -107,33 +106,20 @@ public:
 	 * \param col столбец
 	 * \param row2 строка 2
 	 * \param col2 столбец 2
-	 * \return
 	 */
 	void setWall(int row, int col, int row2, int col2) noexcept;
 
 	/**
-	 * \brief удаление мяча
-	 * \param number номер мяча
+	 * \brief удаление мяча и лунки по номеру
+	 * \param number номер мяча/лунки
 	 */
-	void deleteBall(int number);
-
-	/**
-	 * \brief удаление лунки
-	 * \param number номер лунки
-	 */
-	void deleteHole(int number);
+	void DeleteDataByNumber(int number) noexcept;
 
 	/**
 	 * \brief функция возврата количества мячей и лунок
 	 * \return количество мячей и лунок
 	 */
 	[[nodiscard]] int getBallsAndHolesCount() const noexcept;
-
-	/**
-	 * \brief функция возврата количества стен
-	 * \return количество стен
-	 */
-	[[nodiscard]] int getWallsCount() const noexcept;
 
 	/**
 	 * \brief функция возврата размера поля
@@ -169,17 +155,13 @@ public:
 	 * \brief функция проверки выхода из цикла
 	 * \return да/нет
 	 */
-	[[nodiscard]] bool isFinish();
+	[[nodiscard]] bool IsFinish();
 
 private:
-
-	std::list<Ball*> holes;	///< лунки
+	std::list<std::shared_ptr<Ball>> holes;	///< лунки
 	std::list<std::shared_ptr<Wall>> walls;	///< стены
-	std::list<Ball*> balls;	///< шары
+	std::list<std::shared_ptr<Ball>> balls;	///< шары
 
-	int holes_count{ 0 };	///< количество лунок
-	int walls_count{ 0 };	///< количество стен
-	int balls_count{ 0 };	///< количество шаров
 	int size{ 0 };			///< размер поля
 	std::string answer;		///< путь
 

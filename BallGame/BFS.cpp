@@ -47,9 +47,9 @@ void BFS::getNextPoints(const Condition& state, std::list<Condition>& states) no
 			states.emplace_back(west);
 		}
 	}
-	catch (const std::exception& excpetion)
+	catch (const std::exception& exception)
 	{
-		std::cout << "Unable to get next points. Exception: " << excpetion.what() << std::endl;
+		std::cout << "Unable to get next points. Exception: " << exception.what() << std::endl;
 	}
 }
 
@@ -75,7 +75,7 @@ void BFS::run(const Condition & start) noexcept
 			}
 
 			// проверяем невозможность нахождения решения
-			if (curr.isFinish())
+			if (curr.IsFinish())
 			{
 				std::cout << "Case " << cases_count << ": " << curr.getAnswer() << ".\n\n";
 				++cases_count;
@@ -89,9 +89,9 @@ void BFS::run(const Condition & start) noexcept
 			willCheck.insert(willCheck.end(), neigh.begin(), neigh.end());
 		}
 	}
-	catch (const std::exception& excpetion)
+	catch (const std::exception& exception)
 	{
-		std::cout << "Unable to find solution. Exception: " << excpetion.what() << std::endl;
+		std::cout << "Unable to find solution. Exception: " << exception.what() << std::endl;
 	}
 }
 

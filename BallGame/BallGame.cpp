@@ -40,7 +40,7 @@ void openFile(std::list<BallGame::Condition>& cases)
 			isExit = true;
 			break;
 		}
-		BallGame::Condition cond(balls, walls, size);
+		BallGame::Condition cond(size);
 
 		for (int i = 0; i < balls; ++i)
 		{
