@@ -6,10 +6,10 @@
 // C++
 #include <iostream>
 
-namespace BallGame
+namespace ball_game
 {
 
-void BFS::getNextPoints(const Condition& state, std::list<Condition>& states) noexcept
+void Bfs::GetNextPoints(const Condition& state, std::list<Condition>& states) noexcept
 {
 	try
 	{
@@ -17,32 +17,32 @@ void BFS::getNextPoints(const Condition& state, std::list<Condition>& states) no
 
 		// north
 		Condition north = state;
-		north.setCameFrom(state);
-		if (north.goNorth())
+		north.SetCameFrom(state);
+		if (north.GoNorth())
 		{
 			states.emplace_back(north);
 		}
 
 		// south
 		Condition south = state;
-		south.setCameFrom(state);
-		if (south.goSouth())
+		south.SetCameFrom(state);
+		if (south.GoSouth())
 		{
 			states.emplace_back(south);
 		}
 
 		// east
 		Condition east = state;
-		east.setCameFrom(state);
-		if (east.goEast())
+		east.SetCameFrom(state);
+		if (east.GoEast())
 		{
 			states.emplace_back(east);
 		}
 
 		// west
 		Condition west = state;
-		west.setCameFrom(state);
-		if (west.goWest())
+		west.SetCameFrom(state);
+		if (west.GoWest())
 		{
 			states.emplace_back(west);
 		}
@@ -53,7 +53,7 @@ void BFS::getNextPoints(const Condition& state, std::list<Condition>& states) no
 	}
 }
 
-void BFS::run(const Condition & start) noexcept
+void Bfs::Run(const Condition & start) noexcept
 {
 	try
 	{
@@ -67,25 +67,25 @@ void BFS::run(const Condition & start) noexcept
 			Condition curr = willCheck.front();
 
 			// проверяем количество шаров
-			if (curr.getBallsAndHolesCount() == 0)
+			if (curr.GetBallsAndHolesCount() == 0)
 			{
-				std::cout << "Case " << cases_count << ": " << curr.getAnswer().length() << " moves " << curr.getAnswer() << ".\n\n";
-				++cases_count;
+				std::cout << "Case " << m_casesCount << ": " << curr.GetAnswer().length() << " moves " << curr.GetAnswer() << ".\n\n";
+				++m_casesCount;
 				return;
 			}
 
 			// проверяем невозможность нахождения решения
 			if (curr.IsFinish())
 			{
-				std::cout << "Case " << cases_count << ": " << curr.getAnswer() << ".\n\n";
-				++cases_count;
+				std::cout << "Case " << m_casesCount << ": " << curr.GetAnswer() << ".\n\n";
+				++m_casesCount;
 				return;
 			}
 			// удаляем состояние из списка ожидающих рассмотрения
 			willCheck.pop_front();
 
 			// получаем возможные состояния и добавляем их в список на рассмотрение
-			getNextPoints(curr, neigh);
+			GetNextPoints(curr, neigh);
 			willCheck.insert(willCheck.end(), neigh.begin(), neigh.end());
 		}
 	}
@@ -95,4 +95,4 @@ void BFS::run(const Condition & start) noexcept
 	}
 }
 
-} // namespace BallGame
+} // namespace ball_game

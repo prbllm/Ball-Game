@@ -3,46 +3,46 @@
 // C++
 #include <list>
 
-namespace BallGame
+namespace ball_game
 {
 
 class Condition;
 
 /**
- * \class BFS
+ * \class Bfs
  * \brief Класс поиска в ширину (breadth-first search)
  */
-class BFS
+class Bfs
 {
 public:
 
 	/**
 	 * \brief Конструктор по умолчанию
 	 */
-	explicit BFS() = default;
+	explicit Bfs() = default;
 
 	/**
 	 * \brief Деструктор
 	 */
-	~BFS() = default;
+	~Bfs() = default;
 
 	/**
 	 * \brief основная функция запуска алгоритма поиска
 	 * \param start начальное состояние
 	 */
-	void run(const Condition & start) noexcept;
+	void Run(const Condition & start) noexcept;
 
 private:
 
-	int cases_count{ 1 };
+	int m_casesCount{ 1 };
 
 	/**
 	 * \brief функция поиска следующих точек
 	 * \param state текущее состояние
 	 * \param states список возможных состояний
 	 */
-	void getNextPoints(const Condition& state, std::list<Condition>& states) noexcept;
+	void GetNextPoints(const Condition& state, std::list<Condition>& states) noexcept;
 
 };
 
-} // namespace BallGame
+} // namespace ball_game

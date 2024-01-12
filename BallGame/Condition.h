@@ -8,7 +8,7 @@
 #include <memory>
 #include <string>
 
-namespace BallGame
+namespace ball_game
 {
 
 /**
@@ -44,10 +44,9 @@ public:
 
 	/**
 	 * \brief Конструктор
-	 * \param n_balls количество шаров
-	 * \param n_size размер поля
+	 * \param nSize размер поля
 	 */
-	explicit Condition(int n_size);
+	explicit Condition(int nSize);
 
 	/**
 	 * \brief Деструктор
@@ -55,34 +54,22 @@ public:
 	~Condition() = default;
 
 	/**
-	 * \brief функция добавления текущего направления
-	 * \param symbol направление
-	 */
-	void addToAnswer(DirectionType type) noexcept;
-
-	/**
-	 * \brief функция установки пути
-	 * \param ans путь
-	 */
-	void setAnswer(std::string ans);
-
-	/**
 	 * \brief функция получения пути
 	 * \return путь
 	 */
-	[[nodiscard]] std::string getAnswer() const;
+	[[nodiscard]] std::string GetAnswer() const;
 
 	/**
 	 * \brief функция установки предыдущего состояния
 	 * \param cf предыдущее состояние
 	 */
-	void setCameFrom(const Condition& cf) noexcept;
+	void SetCameFrom(const Condition& cf) noexcept;
 
 	/**
 	 * \brief функция получения предыдущего состояния
 	 * \return предыдущее состояние
 	 */
-	[[nodiscard]] std::shared_ptr<Condition> getCameFrom() const noexcept;
+	[[nodiscard]] std::shared_ptr<Condition> GetCameFrom() const noexcept;
 
 	/**
 	 * \brief функция установки шары
@@ -90,7 +77,7 @@ public:
 	 * \param row строка
 	 * \param col столбец
 	 */
-	void setBall(int num, int row, int col) noexcept;
+	void SetBall(int num, int row, int col) noexcept;
 
 	/**
 	 * \brief функция установки лунки
@@ -98,7 +85,7 @@ public:
 	 * \param row строка
 	 * \param col столбец
 	 */
-	void setHole(int num, int row, int col) noexcept;
+	void SetHole(int num, int row, int col) noexcept;
 
 	/**
 	 * \brief функция установки стены
@@ -107,7 +94,7 @@ public:
 	 * \param row2 строка 2
 	 * \param col2 столбец 2
 	 */
-	void setWall(int row, int col, int row2, int col2) noexcept;
+	void SetWall(int row, int col, int row2, int col2) noexcept;
 
 	/**
 	 * \brief удаление мяча и лунки по номеру
@@ -119,37 +106,37 @@ public:
 	 * \brief функция возврата количества мячей и лунок
 	 * \return количество мячей и лунок
 	 */
-	[[nodiscard]] int getBallsAndHolesCount() const noexcept;
+	[[nodiscard]] int GetBallsAndHolesCount() const noexcept;
 
 	/**
 	 * \brief функция возврата размера поля
 	 * \return размер поля
 	 */
-	[[nodiscard]] int getSize() const noexcept;
+	[[nodiscard]] int GetSize() const noexcept;
 
 	/**
 	 * \brief движение на север
 	 * \return да/нет
 	 */
-	[[nodiscard]] bool goNorth();
+	[[nodiscard]] bool GoNorth();
 
 	/**
 	 * \brief движение на юг
 	 * \return да/нет
 	 */
-	[[nodiscard]] bool goSouth();
+	[[nodiscard]] bool GoSouth();
 
 	/**
 	 * \brief движение на восток
 	 * \return да/нет
 	 */
-	[[nodiscard]] bool goEast();
+	[[nodiscard]] bool GoEast();
 
 	/**
 	 * \brief движение на запад
 	 * \return да/нет
 	 */
-	[[nodiscard]] bool goWest();
+	[[nodiscard]] bool GoWest();
 
 	/**
 	 * \brief функция проверки выхода из цикла
@@ -158,13 +145,19 @@ public:
 	[[nodiscard]] bool IsFinish();
 
 private:
-	std::list<std::shared_ptr<Ball>> holes;	///< лунки
-	std::list<std::shared_ptr<Wall>> walls;	///< стены
-	std::list<std::shared_ptr<Ball>> balls;	///< шары
+	std::list<std::shared_ptr<Ball>> m_holes;	///< лунки
+	std::list<std::shared_ptr<Wall>> m_walls;	///< стены
+	std::list<std::shared_ptr<Ball>> m_balls;	///< шары
 
-	int size{ 0 };			///< размер поля
-	std::string answer;		///< путь
+	int m_size{ 0 };			///< размер поля
+	std::string m_answer;		///< путь
 
-	std::shared_ptr<Condition> came_from{ nullptr }; ///< указатель на предыдущее состояние
+	std::shared_ptr<Condition> m_cameFrom{ nullptr }; ///< указатель на предыдущее состояние
+
+	/**
+	 * \brief функция добавления текущего направления
+	 * \param type тип направления
+	 */
+	void AddToAnswer(DirectionType type) noexcept;
 };
-} // namespace BallGame
+} // namespace ball_game

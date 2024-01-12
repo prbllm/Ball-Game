@@ -2,23 +2,22 @@
 
 // C++
 #include <iostream>
-#include <iterator>
 
-namespace BallGame
+namespace ball_game
 {
 
 Condition::Condition(const Condition& cond)
 {
-	for (const auto& ball : cond.balls)
+	for (const auto& ball : cond.m_balls)
 	{
-		this->balls.emplace_back(std::make_shared<Ball>(*ball));
+		this->m_balls.emplace_back(std::make_shared<Ball>(*ball));
 	}
 
-	this->size = cond.size;
-	this->holes = cond.holes;
-	this->walls = cond.walls;
-	this->came_from = cond.came_from;
-	this->answer = cond.answer;
+	this->m_size = cond.m_size;
+	this->m_holes = cond.m_holes;
+	this->m_walls = cond.m_walls;
+	this->m_cameFrom = cond.m_cameFrom;
+	this->m_answer = cond.m_answer;
 }
 
 Condition& Condition::operator=(const Condition& rhs)
@@ -28,40 +27,40 @@ Condition& Condition::operator=(const Condition& rhs)
 		return *this;
 	}
 
-	for (const auto& ball : rhs.balls)
+	for (const auto& ball : rhs.m_balls)
 	{
-		this->balls.emplace_back(std::make_shared<Ball>(*ball));
+		this->m_balls.emplace_back(std::make_shared<Ball>(*ball));
 	}
 
-	this->size = rhs.size;
-	this->holes = rhs.holes;
-	this->walls = rhs.walls;
-	this->came_from = rhs.came_from;
-	this->answer = rhs.answer;
+	this->m_size = rhs.m_size;
+	this->m_holes = rhs.m_holes;
+	this->m_walls = rhs.m_walls;
+	this->m_cameFrom = rhs.m_cameFrom;
+	this->m_answer = rhs.m_answer;
 
 	return *this;
 }
 
-Condition::Condition(int n_size)
+Condition::Condition(int nSize)
 {
-	this->size = n_size;
+	this->m_size = nSize;
 }
 
-void Condition::addToAnswer(DirectionType type) noexcept
+void Condition::AddToAnswer(DirectionType type) noexcept
 {
 	switch (type)
 	{
 	case DirectionType::North:
-		answer += 'N';
+		m_answer += 'N';
 		break;
 	case DirectionType::South:
-		answer += 'S';
+		m_answer += 'S';
 		break;
 	case DirectionType::East:
-		answer += 'E';
+		m_answer += 'E';
 		break;
 	case DirectionType::West:
-		answer += 'W';
+		m_answer += 'W';
 		break;
 	default:
 		std::cout << "Unknown direction type" << std::endl;
@@ -69,39 +68,34 @@ void Condition::addToAnswer(DirectionType type) noexcept
 	}
 }
 
-void Condition::setAnswer(std::string ans)
+std::string Condition::GetAnswer() const
 {
-	answer = ans;
+	return m_answer;
 }
 
-std::string Condition::getAnswer() const
-{
-	return answer;
-}
-
-void Condition::setCameFrom(const Condition& cf) noexcept
+void Condition::SetCameFrom(const Condition& cf) noexcept
 {
 	try
 	{
-		came_from = std::make_shared<Condition>(cf);
+		m_cameFrom = std::make_shared<Condition>(cf);
 	}
 	catch (const std::exception& exception)
 	{
 		std::cout << "Unable to create previous step condition. Exception: " << exception.what() << std::endl;
-		came_from = nullptr;
+		m_cameFrom = nullptr;
 	}
 }
 
-std::shared_ptr<Condition> Condition::getCameFrom() const noexcept
+std::shared_ptr<Condition> Condition::GetCameFrom() const noexcept
 {
-	return came_from;
+	return m_cameFrom;
 }
 
-void Condition::setBall(int num, int row, int col) noexcept
+void Condition::SetBall(int num, int row, int col) noexcept
 {
 	try
 	{
-		balls.emplace_back(std::make_shared<Ball>(row, col, num));
+		m_balls.emplace_back(std::make_shared<Ball>(row, col, num));
 	}
 	catch (const std::exception& exception)
 	{
@@ -109,11 +103,11 @@ void Condition::setBall(int num, int row, int col) noexcept
 	}
 }
 
-void Condition::setHole(int num, int row, int col) noexcept
+void Condition::SetHole(int num, int row, int col) noexcept
 {
 	try
 	{
-		holes.emplace_back(std::make_shared<Ball>(row, col, num));
+		m_holes.emplace_back(std::make_shared<Ball>(row, col, num));
 	}
 	catch (const std::exception& exception)
 	{
@@ -121,11 +115,11 @@ void Condition::setHole(int num, int row, int col) noexcept
 	}
 }
 
-void Condition::setWall(int row, int col, int row2, int col2) noexcept
+void Condition::SetWall(int row, int col, int row2, int col2) noexcept
 {
 	try
 	{
-		walls.emplace_back(std::make_shared<Wall>(row, col, row2, col2));
+		m_walls.emplace_back(std::make_shared<Wall>(row, col, row2, col2));
 	}
 	catch (const std::exception& exception)
 	{
@@ -141,7 +135,7 @@ void Condition::DeleteDataByNumber(int number) noexcept
 		{
 			for (auto it = list.cbegin(); it != list.cend(); ++it)
 			{
-				if ((*it)->getNumber() == number)
+				if ((*it)->GetNumber() == number)
 				{
 					list.erase(it);
 					break;
@@ -154,21 +148,21 @@ void Condition::DeleteDataByNumber(int number) noexcept
 		}
 	};
 
-	run(balls);
-	run(holes);
+	run(m_balls);
+	run(m_holes);
 }
 
-int Condition::getBallsAndHolesCount() const noexcept
+int Condition::GetBallsAndHolesCount() const noexcept
 {
-	return balls.size();
+	return m_balls.size();
 }
 
-int Condition::getSize() const noexcept
+int Condition::GetSize() const noexcept
 {
-	return size;
+	return m_size;
 }
 
-bool Condition::goNorth()
+bool Condition::GoNorth()
 {
 	// все 4 функции аналогичные, различия только по направлению движения
 	int row_new = 0;
@@ -179,13 +173,13 @@ bool Condition::goNorth()
 	std::list<int> numbers;
 
 	std::list<Ball> oldBalls;
-	for (const auto& ball : balls)
+	for (const auto& ball : m_balls)
 	{
 		oldBalls.emplace_back(*ball);
 	}
 
 	// цикл по всем шарам
-	for (const auto& ball : balls)
+	for (const auto& ball : m_balls)
 	{
 		row_new = 0;
 		balls_count = 0;
@@ -194,47 +188,47 @@ bool Condition::goNorth()
 		// ищутся шары до конца поля
 		for (const auto& oldBall : oldBalls)
 		{
-			if (oldBall.getCol() == ball->getCol() && oldBall.getRow() > ball->getRow())
+			if (oldBall.GetCol() == ball->GetCol() && oldBall.GetRow() > ball->GetRow())
 			{
 				++balls_count;
 			}
 		}
 
 		// цикл по стенам
-		for (const auto& wall : walls)
+		for (const auto& wall : m_walls)
 		{
 			// ищутся шары до стены
-			if (wall->getColFirst() == wall->getColSec() && wall->getColFirst() == ball->getCol() && wall->getRowFirst() >= ball->getRow())
+			if (wall->GetColFirst() == wall->GetColSec() && wall->GetColFirst() == ball->GetCol() && wall->GetRowFirst() >= ball->GetRow())
 			{
 				balls_count = 0;
 				for (const auto& oldBall : oldBalls)
 				{
-					if (oldBall.getCol() == ball->getCol() && oldBall.getRow() > ball->getRow() && oldBall.getRow() <= wall->getRowFirst())
+					if (oldBall.GetCol() == ball->GetCol() && oldBall.GetRow() > ball->GetRow() && oldBall.GetRow() <= wall->GetRowFirst())
 					{
 						++balls_count;
 					}
 				}
 
 				// рассчитывается новая строка
-				row_new = wall->getRowFirst() - balls_count;
+				row_new = wall->GetRowFirst() - balls_count;
 				isWall = true;
 			}
 		}
 
 		if (!isWall)
 		{
-			row_new = size - 1 - balls_count;
+			row_new = m_size - 1 - balls_count;
 		}
 
 		// цикл по лункам
-		for (const auto& hole : holes)
+		for (const auto& hole : m_holes)
 		{
-			if (hole->getCol() == ball->getCol() && (hole->getRow() <= row_new) && (hole->getRow() > ball->getRow()))
+			if (hole->GetCol() == ball->GetCol() && (hole->GetRow() <= row_new) && (hole->GetRow() > ball->GetRow()))
 			{
 				// если есть лунка нужная на пути, запоминаем номер
-				if (hole->getNumber() == ball->getNumber() && balls_count == 0)
+				if (hole->GetNumber() == ball->GetNumber() && balls_count == 0)
 				{
-					numbers.push_back(hole->getNumber());
+					numbers.push_back(hole->GetNumber());
 					++del_count;
 				}
 				else
@@ -246,7 +240,7 @@ bool Condition::goNorth()
 
 		if (del_count == 0)
 		{
-			ball->setRow(row_new);
+			ball->SetRow(row_new);
 		}
 	}
 
@@ -257,27 +251,27 @@ bool Condition::goNorth()
 	}
 
 	// отсеивание лишних движений, которые не изменяют позицию
-	if (came_from && came_from->came_from)
+	if (m_cameFrom && m_cameFrom->m_cameFrom)
 	{
 		int count3{ 0 }, count2{ 0 };
-		for (const auto& ball : balls)
+		for (const auto& ball : m_balls)
 		{
-			for (const auto& oldBall : came_from->came_from->balls)
+			for (const auto& oldBall : m_cameFrom->m_cameFrom->m_balls)
 			{
-				if (ball->getNumber() == oldBall->getNumber())
+				if (ball->GetNumber() == oldBall->GetNumber())
 				{
-					if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+					if (ball->GetRow() == oldBall->GetRow() && ball->GetCol() == oldBall->GetCol())
 					{
 						++count3;
 					}
 				}
 			}
 
-			for (const auto& oldBall : came_from->balls)
+			for (const auto& oldBall : m_cameFrom->m_balls)
 			{
-				if (ball->getNumber() == oldBall->getNumber())
+				if (ball->GetNumber() == oldBall->GetNumber())
 				{
-					if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+					if (ball->GetRow() == oldBall->GetRow() && ball->GetCol() == oldBall->GetCol())
 					{
 						++count2;
 					}
@@ -285,17 +279,17 @@ bool Condition::goNorth()
 			}
 		}
 
-		if ((count3 == getBallsAndHolesCount() && getBallsAndHolesCount() == came_from->came_from->getBallsAndHolesCount()) ||
-			count2 == getBallsAndHolesCount() && came_from->getBallsAndHolesCount() == getBallsAndHolesCount())
+		if ((count3 == GetBallsAndHolesCount() && GetBallsAndHolesCount() == m_cameFrom->m_cameFrom->GetBallsAndHolesCount()) ||
+			count2 == GetBallsAndHolesCount() && m_cameFrom->GetBallsAndHolesCount() == GetBallsAndHolesCount())
 		{
 			return false;
 		}
 	}
-	addToAnswer(DirectionType::North);
+	AddToAnswer(DirectionType::North);
 	return true;
 }
 
-bool Condition::goSouth()
+bool Condition::GoSouth()
 {
 	int row_new = 0;
 	int balls_count = 0;
@@ -305,12 +299,12 @@ bool Condition::goSouth()
 	std::list<int> numbers;
 
 	std::list<Ball> oldBalls;
-	for (const auto& ball : balls)
+	for (const auto& ball : m_balls)
 	{
 		oldBalls.emplace_back(*ball);
 	}
 
-	for (const auto& ball : balls)
+	for (const auto& ball : m_balls)
 	{
 		row_new = 0;
 		balls_count = 0;
@@ -318,25 +312,25 @@ bool Condition::goSouth()
 
 		for (const auto& oldBall : oldBalls)
 		{
-			if (oldBall.getCol() == ball->getCol() && oldBall.getRow() < ball->getRow())
+			if (oldBall.GetCol() == ball->GetCol() && oldBall.GetRow() < ball->GetRow())
 			{
 				++balls_count;
 			}
 		}
 
-		for (const auto& wall : walls)
+		for (const auto& wall : m_walls)
 		{
-			if (wall->getColFirst() == wall->getColSec() && wall->getColFirst() == ball->getCol() && wall->getRowSec() <= ball->getRow())
+			if (wall->GetColFirst() == wall->GetColSec() && wall->GetColFirst() == ball->GetCol() && wall->GetRowSec() <= ball->GetRow())
 			{
 				balls_count = 0;
 				for (const auto& oldBall : oldBalls)
 				{
-					if (oldBall.getCol() == ball->getCol() && oldBall.getRow() < ball->getRow() && oldBall.getRow() >= wall->getRowSec())
+					if (oldBall.GetCol() == ball->GetCol() && oldBall.GetRow() < ball->GetRow() && oldBall.GetRow() >= wall->GetRowSec())
 					{
 						++balls_count;
 					}
 				}
-				row_new = wall->getRowSec() + balls_count;
+				row_new = wall->GetRowSec() + balls_count;
 				isWall = true;
 			}
 		}
@@ -346,13 +340,13 @@ bool Condition::goSouth()
 			row_new = balls_count;
 		}
 
-		for (const auto& hole : holes)
+		for (const auto& hole : m_holes)
 		{
-			if (hole->getCol() == ball->getCol() && hole->getRow() >= row_new && hole->getRow() < ball->getRow())
+			if (hole->GetCol() == ball->GetCol() && hole->GetRow() >= row_new && hole->GetRow() < ball->GetRow())
 			{
-				if (hole->getNumber() == ball->getNumber() && balls_count == 0)
+				if (hole->GetNumber() == ball->GetNumber() && balls_count == 0)
 				{
-					numbers.push_back(hole->getNumber());
+					numbers.push_back(hole->GetNumber());
 					++del_count;
 				}
 				else
@@ -364,7 +358,7 @@ bool Condition::goSouth()
 
 		if (del_count == 0)
 		{
-			ball->setRow(row_new);
+			ball->SetRow(row_new);
 		}
 	}
 
@@ -373,44 +367,44 @@ bool Condition::goSouth()
 		DeleteDataByNumber(i);
 	}
 
-	if (came_from && came_from->came_from)
+	if (m_cameFrom && m_cameFrom->m_cameFrom)
 	{
 		int count3{ 0 }, count2{ 0 };
-		for (const auto& ball : balls)
+		for (const auto& ball : m_balls)
 		{
-			for (const auto& oldBall : came_from->came_from->balls)
+			for (const auto& oldBall : m_cameFrom->m_cameFrom->m_balls)
 			{
-				if (ball->getNumber() == oldBall->getNumber())
+				if (ball->GetNumber() == oldBall->GetNumber())
 				{
-					if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+					if (ball->GetRow() == oldBall->GetRow() && ball->GetCol() == oldBall->GetCol())
 					{
 						++count3;
 					}
 				}
 			}
 
-			for (const auto& oldBall : came_from->balls)
+			for (const auto& oldBall : m_cameFrom->m_balls)
 			{
-				if (ball->getNumber() == oldBall->getNumber())
+				if (ball->GetNumber() == oldBall->GetNumber())
 				{
-					if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+					if (ball->GetRow() == oldBall->GetRow() && ball->GetCol() == oldBall->GetCol())
 					{
 						++count2;
 					}
 				}
 			}
 		}
-		if ((count3 == getBallsAndHolesCount() && getBallsAndHolesCount() == came_from->came_from->getBallsAndHolesCount()) ||
-			count2 == getBallsAndHolesCount() && came_from->getBallsAndHolesCount() == getBallsAndHolesCount())
+		if ((count3 == GetBallsAndHolesCount() && GetBallsAndHolesCount() == m_cameFrom->m_cameFrom->GetBallsAndHolesCount()) ||
+			count2 == GetBallsAndHolesCount() && m_cameFrom->GetBallsAndHolesCount() == GetBallsAndHolesCount())
 		{
 			return false;
 		}
 	}
-	addToAnswer(DirectionType::South);
+	AddToAnswer(DirectionType::South);
 	return true;
 }
 
-bool Condition::goEast()
+bool Condition::GoEast()
 {
 	int col_new = 0;
 	int balls_count = 0;
@@ -420,12 +414,12 @@ bool Condition::goEast()
 	std::list<int> numbers;
 
 	std::list<Ball> oldBalls;
-	for (const auto& ball : balls)
+	for (const auto& ball : m_balls)
 	{
 		oldBalls.emplace_back(*ball);
 	}
 
-	for (const auto& ball : balls)
+	for (const auto& ball : m_balls)
 	{
 		col_new = 0;
 		balls_count = 0;
@@ -433,26 +427,26 @@ bool Condition::goEast()
 
 		for (const auto& oldBall : oldBalls)
 		{
-			if (oldBall.getRow() == ball->getRow() && oldBall.getCol() < ball->getCol())
+			if (oldBall.GetRow() == ball->GetRow() && oldBall.GetCol() < ball->GetCol())
 			{
 				++balls_count;
 			}
 		}
 
-		for (const auto& wall : walls)
+		for (const auto& wall : m_walls)
 		{
-			if ((wall->getRowFirst() == wall->getRowSec()) && (wall->getRowFirst() == ball->getRow())
-				&& (wall->getColSec() <= ball->getCol()))
+			if ((wall->GetRowFirst() == wall->GetRowSec()) && (wall->GetRowFirst() == ball->GetRow())
+				&& (wall->GetColSec() <= ball->GetCol()))
 			{
 				balls_count = 0;
 				for (const auto& oldBall : oldBalls)
 				{
-					if (oldBall.getRow() == ball->getRow() && oldBall.getCol() < ball->getCol() && oldBall.getCol() >= wall->getColSec())
+					if (oldBall.GetRow() == ball->GetRow() && oldBall.GetCol() < ball->GetCol() && oldBall.GetCol() >= wall->GetColSec())
 					{
 						++balls_count;
 					}
 				}
-				col_new = wall->getColSec() - balls_count;
+				col_new = wall->GetColSec() - balls_count;
 				isWall = true;
 			}
 		}
@@ -462,13 +456,13 @@ bool Condition::goEast()
 			col_new = balls_count;
 		}
 
-		for (const auto& hole : holes)
+		for (const auto& hole : m_holes)
 		{
-			if ((hole->getRow() == ball->getRow()) && (hole->getCol() >= col_new) && (hole->getCol() < ball->getCol()))
+			if ((hole->GetRow() == ball->GetRow()) && (hole->GetCol() >= col_new) && (hole->GetCol() < ball->GetCol()))
 			{
-				if ((hole->getNumber() == ball->getNumber()) && (balls_count == 0))
+				if ((hole->GetNumber() == ball->GetNumber()) && (balls_count == 0))
 				{
-					numbers.push_back(hole->getNumber());
+					numbers.push_back(hole->GetNumber());
 					++del_count;
 				}
 				else
@@ -480,7 +474,7 @@ bool Condition::goEast()
 
 		if (del_count == 0)
 		{
-			ball->setCol(col_new);
+			ball->SetCol(col_new);
 		}
 	}
 
@@ -489,44 +483,44 @@ bool Condition::goEast()
 		DeleteDataByNumber(i);
 	}
 
-	if (came_from && came_from->came_from)
+	if (m_cameFrom && m_cameFrom->m_cameFrom)
 	{
 		int count3{ 0 }, count2{ 0 };
-		for (const auto& ball : balls)
+		for (const auto& ball : m_balls)
 		{
-			for (const auto& oldBall : came_from->came_from->balls)
+			for (const auto& oldBall : m_cameFrom->m_cameFrom->m_balls)
 			{
-				if (ball->getNumber() == oldBall->getNumber())
+				if (ball->GetNumber() == oldBall->GetNumber())
 				{
-					if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+					if (ball->GetRow() == oldBall->GetRow() && ball->GetCol() == oldBall->GetCol())
 					{
 						++count3;
 					}
 				}
 			}
 
-			for (const auto& oldBall : came_from->balls)
+			for (const auto& oldBall : m_cameFrom->m_balls)
 			{
-				if (ball->getNumber() == oldBall->getNumber())
+				if (ball->GetNumber() == oldBall->GetNumber())
 				{
-					if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+					if (ball->GetRow() == oldBall->GetRow() && ball->GetCol() == oldBall->GetCol())
 					{
 						++count2;
 					}
 				}
 			}
 		}
-		if ((count3 == getBallsAndHolesCount() && getBallsAndHolesCount() == came_from->came_from->getBallsAndHolesCount()) ||
-			count2 == getBallsAndHolesCount() && came_from->getBallsAndHolesCount() == getBallsAndHolesCount())
+		if ((count3 == GetBallsAndHolesCount() && GetBallsAndHolesCount() == m_cameFrom->m_cameFrom->GetBallsAndHolesCount()) ||
+			count2 == GetBallsAndHolesCount() && m_cameFrom->GetBallsAndHolesCount() == GetBallsAndHolesCount())
 		{
 			return false;
 		}
 	}
-	addToAnswer(DirectionType::East);
+	AddToAnswer(DirectionType::East);
 	return true;
 }
 
-bool Condition::goWest()
+bool Condition::GoWest()
 {
 	int col_new = 0;
 	int balls_count = 0;
@@ -536,12 +530,12 @@ bool Condition::goWest()
 	std::list<int> numbers;
 
 	std::list<Ball> oldBalls;
-	for (const auto& ball : balls)
+	for (const auto& ball : m_balls)
 	{
 		oldBalls.emplace_back(*ball);
 	}
 
-	for (const auto& ball : balls)
+	for (const auto& ball : m_balls)
 	{
 		col_new = 0;
 		balls_count = 0;
@@ -549,41 +543,41 @@ bool Condition::goWest()
 
 		for (const auto& oldBall : oldBalls)
 		{
-			if (oldBall.getRow() == ball->getRow() && oldBall.getCol() > ball->getCol())
+			if (oldBall.GetRow() == ball->GetRow() && oldBall.GetCol() > ball->GetCol())
 			{
 				++balls_count;
 			}
 		}
 
-		for (const auto& wall : walls)
+		for (const auto& wall : m_walls)
 		{
-			if (wall->getRowFirst() == wall->getRowSec() && wall->getRowFirst() == ball->getRow() && wall->getColFirst() >= ball->getCol())
+			if (wall->GetRowFirst() == wall->GetRowSec() && wall->GetRowFirst() == ball->GetRow() && wall->GetColFirst() >= ball->GetCol())
 			{
 				balls_count = 0;
 				for (const auto& oldBall : oldBalls)
 				{
-					if (oldBall.getRow() == ball->getRow() && oldBall.getCol() > ball->getCol() && oldBall.getCol() <= wall->getColFirst())
+					if (oldBall.GetRow() == ball->GetRow() && oldBall.GetCol() > ball->GetCol() && oldBall.GetCol() <= wall->GetColFirst())
 					{
 						++balls_count;
 					}
 				}
-				col_new = wall->getColFirst() + balls_count;
+				col_new = wall->GetColFirst() + balls_count;
 				isWall = true;
 			}
 		}
 
 		if (!isWall)
 		{
-			col_new = size - 1 - balls_count;
+			col_new = m_size - 1 - balls_count;
 		}
 
-		for (const auto& hole : holes)
+		for (const auto& hole : m_holes)
 		{
-			if (hole->getRow() == ball->getRow() && hole->getCol() <= col_new && hole->getCol() > ball->getCol())
+			if (hole->GetRow() == ball->GetRow() && hole->GetCol() <= col_new && hole->GetCol() > ball->GetCol())
 			{
-				if (hole->getNumber() == ball->getNumber() && balls_count == 0)
+				if (hole->GetNumber() == ball->GetNumber() && balls_count == 0)
 				{
-					numbers.push_back(hole->getNumber());
+					numbers.push_back(hole->GetNumber());
 					++del_count;
 				}
 				else
@@ -595,7 +589,7 @@ bool Condition::goWest()
 
 		if (del_count == 0)
 		{
-			ball->setCol(col_new);
+			ball->SetCol(col_new);
 		}
 	}
 
@@ -604,84 +598,84 @@ bool Condition::goWest()
 		DeleteDataByNumber(i);
 	}
 
-	if ((came_from != nullptr) &&
-		(came_from->came_from != nullptr))
+	if ((m_cameFrom != nullptr) &&
+		(m_cameFrom->m_cameFrom != nullptr))
 	{
 		int count3{ 0 }, count2{ 0 };
-		for (const auto& ball : balls)
+		for (const auto& ball : m_balls)
 		{
-			for (const auto& oldBall : came_from->came_from->balls)
+			for (const auto& oldBall : m_cameFrom->m_cameFrom->m_balls)
 			{
-				if (ball->getNumber() == oldBall->getNumber())
+				if (ball->GetNumber() == oldBall->GetNumber())
 				{
-					if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+					if (ball->GetRow() == oldBall->GetRow() && ball->GetCol() == oldBall->GetCol())
 					{
 						++count3;
 					}
 				}
 			}
 
-			for (const auto& oldBall : came_from->balls)
+			for (const auto& oldBall : m_cameFrom->m_balls)
 			{
-				if (ball->getNumber() == oldBall->getNumber())
+				if (ball->GetNumber() == oldBall->GetNumber())
 				{
-					if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+					if (ball->GetRow() == oldBall->GetRow() && ball->GetCol() == oldBall->GetCol())
 					{
 						++count2;
 					}
 				}
 			}
 		}
-		if ((count3 == getBallsAndHolesCount() && getBallsAndHolesCount() == came_from->came_from->getBallsAndHolesCount()) ||
-			count2 == getBallsAndHolesCount() && came_from->getBallsAndHolesCount() == getBallsAndHolesCount())
+		if ((count3 == GetBallsAndHolesCount() && GetBallsAndHolesCount() == m_cameFrom->m_cameFrom->GetBallsAndHolesCount()) ||
+			count2 == GetBallsAndHolesCount() && m_cameFrom->GetBallsAndHolesCount() == GetBallsAndHolesCount())
 		{
 			return false;
 		}
 	}
-	addToAnswer(DirectionType::West);
+	AddToAnswer(DirectionType::West);
 	return true;
 }
 
 bool Condition::IsFinish()
 {
-	if (getBallsAndHolesCount() != 1)
+	if (GetBallsAndHolesCount() != 1)
 	{
 		return false;
 	}
 
-	if (!came_from || !came_from->came_from || !came_from->came_from->came_from || !came_from->came_from->came_from->came_from)
+	if (!m_cameFrom || !m_cameFrom->m_cameFrom || !m_cameFrom->m_cameFrom->m_cameFrom || !m_cameFrom->m_cameFrom->m_cameFrom->m_cameFrom)
 	{
 		return false;
 	}
 
-	if (getBallsAndHolesCount() != came_from->getBallsAndHolesCount() ||
-		getBallsAndHolesCount() != came_from->came_from->getBallsAndHolesCount() ||
-		getBallsAndHolesCount() != came_from->came_from->came_from->getBallsAndHolesCount() ||
-		getBallsAndHolesCount() != came_from->came_from->came_from->came_from->getBallsAndHolesCount())
+	if (GetBallsAndHolesCount() != m_cameFrom->GetBallsAndHolesCount() ||
+		GetBallsAndHolesCount() != m_cameFrom->m_cameFrom->GetBallsAndHolesCount() ||
+		GetBallsAndHolesCount() != m_cameFrom->m_cameFrom->m_cameFrom->GetBallsAndHolesCount() ||
+		GetBallsAndHolesCount() != m_cameFrom->m_cameFrom->m_cameFrom->m_cameFrom->GetBallsAndHolesCount())
 	{
 		return false;
 	}
 
 	int count3{ 0 }, count4{ 0 };
 
-	for (const auto& ball : balls)
+	for (const auto& ball : m_balls)
 	{
-		for (const auto& oldBall : came_from->came_from->came_from->balls)
+		for (const auto& oldBall : m_cameFrom->m_cameFrom->m_cameFrom->m_balls)
 		{
-			if (ball->getNumber() == oldBall->getNumber())
+			if (ball->GetNumber() == oldBall->GetNumber())
 			{
-				if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+				if (ball->GetRow() == oldBall->GetRow() && ball->GetCol() == oldBall->GetCol())
 				{
 					++count3;
 				}
 			}
 		}
 
-		for (const auto& oldBall : came_from->came_from->came_from->came_from->balls)
+		for (const auto& oldBall : m_cameFrom->m_cameFrom->m_cameFrom->m_cameFrom->m_balls)
 		{
-			if (ball->getNumber() == oldBall->getNumber())
+			if (ball->GetNumber() == oldBall->GetNumber())
 			{
-				if (ball->getRow() == oldBall->getRow() && ball->getCol() == oldBall->getCol())
+				if (ball->GetRow() == oldBall->GetRow() && ball->GetCol() == oldBall->GetCol())
 				{
 					++count4;
 				}
@@ -689,12 +683,12 @@ bool Condition::IsFinish()
 		}
 	}
 
-	if (count3 == getBallsAndHolesCount() || count4 == getBallsAndHolesCount())
+	if (count3 == GetBallsAndHolesCount() || count4 == GetBallsAndHolesCount())
 	{
-		answer = "Impossible";
+		m_answer = "Impossible";
 		return true;
 	}
 	return false;
 }
 
-}
+} // namespace ball_game

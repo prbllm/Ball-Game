@@ -8,7 +8,7 @@
 #include <iostream>
 #include <list>
 
-void openFile(std::list<BallGame::Condition>& cases)
+void OpenFile(std::list<ball_game::Condition>& cases)
 {
 	static const std::filesystem::path fileName{ std::filesystem::current_path() / "BallGame" / "data" / "input.txt"};
 	std::ifstream file(fileName, std::ios_base::in);
@@ -40,7 +40,7 @@ void openFile(std::list<BallGame::Condition>& cases)
 			isExit = true;
 			break;
 		}
-		BallGame::Condition cond(size);
+		ball_game::Condition cond(size);
 
 		for (int i = 0; i < balls; ++i)
 		{
@@ -50,7 +50,7 @@ void openFile(std::list<BallGame::Condition>& cases)
 			col = 0;
 			std::istringstream stream(line);
 			stream >> row >> col;
-			cond.setBall(i, row, col);
+			cond.SetBall(i, row, col);
 		}
 
 		for (int i = 0; i < balls; ++i)
@@ -61,7 +61,7 @@ void openFile(std::list<BallGame::Condition>& cases)
 			col = 0;
 			std::istringstream stream(line);
 			stream >> row >> col;
-			cond.setHole(i, row, col);
+			cond.SetHole(i, row, col);
 		}
 
 		for (int i = 0; i < walls; ++i)
@@ -74,7 +74,7 @@ void openFile(std::list<BallGame::Condition>& cases)
 			col2 = 0;
 			std::istringstream stream(line);
 			stream >> row >> col >> row2 >> col2;
-			cond.setWall(row > row2 ? row2 : row, col > col2 ? col2 : col, row > row2 ? row : row2, col > col2 ? col2 : col2);
+			cond.SetWall(row > row2 ? row2 : row, col > col2 ? col2 : col, row > row2 ? row : row2, col > col2 ? col2 : col2);
 		}
 		cases.push_back(cond);
 	}
@@ -82,13 +82,13 @@ void openFile(std::list<BallGame::Condition>& cases)
 
 int main()
 {
-	BallGame::BFS bfs;
-	std::list<BallGame::Condition> cases;
-	openFile(cases);
+	ball_game::Bfs bfs;
+	std::list<ball_game::Condition> cases;
+	OpenFile(cases);
 
 	for (const auto& cond : cases)
 	{
-		bfs.run(cond);
+		bfs.Run(cond);
 	}
     return 0;
 }

@@ -1,66 +1,69 @@
 ﻿#include "Structures.h"
 
-BallGame::Ball::Ball(int x, int y, int num)
+namespace ball_game {
+
+Ball::Ball(int x, int y, int num)
 {
-	row = x;
-	col = y;
-	number = num;
+	m_row = x;
+	m_col = y;
+	m_number = num;
 }
 
-void BallGame::Ball::setRow(int x) noexcept
+void Ball::SetRow(int x) noexcept
 {
-	row = x;
+	m_row = x;
 }
 
-int BallGame::Ball::getRow() const noexcept
+int Ball::GetRow() const noexcept
 {
-	return row;
+	return m_row;
 }
 
-void BallGame::Ball::setCol(int y) noexcept
+void Ball::SetCol(int y) noexcept
 {
-	col = y;
+	m_col = y;
 }
 
-int BallGame::Ball::getCol() const noexcept
+int Ball::GetCol() const noexcept
 {
-	return col;
+	return m_col;
 }
 
-void BallGame::Ball::setNumber(int num) noexcept
+void Ball::SetNumber(int num) noexcept
 {
-	number = num;
+	m_number = num;
 }
 
-int BallGame::Ball::getNumber() const noexcept
+int Ball::GetNumber() const noexcept
 {
-	return number;
+	return m_number;
 }
 
-BallGame::Wall::Wall(int row, int col, int row2, int col2)
+Wall::Wall(int row, int col, int row2, int col2)
 {
-	row_first = row;
-	col_first = col;
-	row_sec = row2;
-	col_sec = col2;
+	m_rowFirst = row;
+	m_colFirst = col;
+	m_rowSec = row2;
+	m_colSec = col2;
 }
 
-int BallGame::Wall::getRowFirst() const noexcept
+int Wall::GetRowFirst() const noexcept
 {
-	return row_first;
+	return m_rowFirst;
 }
 
-int BallGame::Wall::getRowSec() const noexcept
+int Wall::GetRowSec() const noexcept
 {
-	return row_sec;
+	return m_rowSec;
 }
 
-int BallGame::Wall::getColFirst() const noexcept
+int Wall::GetColFirst() const noexcept
 {
-	return col_first;
+	return m_colFirst;
 }
 
-int BallGame::Wall::getColSec() const noexcept
+int Wall::GetColSec() const noexcept
 {
-	return col_sec;
+	return m_colSec;
+}
 }
