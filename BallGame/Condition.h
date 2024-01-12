@@ -64,12 +64,6 @@ public:
 	void SetCameFrom(const Condition& cf) noexcept;
 
 	/**
-	 * \brief функция получения предыдущего состояния
-	 * \return предыдущее состояние
-	 */
-	[[nodiscard]] std::shared_ptr<Condition> GetCameFrom() const noexcept;
-
-	/**
 	 * \brief функция установки шары
 	 * \param num номер шара
 	 * \param row строка
@@ -157,5 +151,11 @@ private:
 	 * \param type тип направления
 	 */
 	void AddToAnswer(DirectionType type) noexcept;
+
+	/**
+	 * \brief отсеивание лишних движений, которые не изменяют позицию
+	 * \return результат проверки
+	 */
+	[[nodiscard]] bool CheckMovement() const noexcept;
 };
 } // namespace ball_game
