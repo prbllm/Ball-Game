@@ -196,16 +196,120 @@ int Condition::GetSize() const noexcept
 	return m_size;
 }
 
-bool Condition::GoNorth()
+bool Condition::ChangePosition(DirectionType directionType)
 {
+	const auto checkBalls = [](const Ball& oldBall, const std::shared_ptr<Ball>& ball, DirectionType type)
+	{
+		switch (type)
+		{
+		case DirectionType::North:
+			return oldBall.GetCol() == ball->GetCol() && oldBall.GetRow() > ball->GetRow();
+		case DirectionType::South:
+			return oldBall.GetCol() == ball->GetCol() && oldBall.GetRow() < ball->GetRow();
+		case DirectionType::East:
+			return oldBall.GetRow() == ball->GetRow() && oldBall.GetCol() < ball->GetCol();
+		case DirectionType::West:
+			return oldBall.GetRow() == ball->GetRow() && oldBall.GetCol() > ball->GetCol();
+		default:
+			std::cout << "Warning. Unknown direction type." << std::endl;
+			return false;
+		}
+	};
+
+	const auto checkWalls = [](const std::shared_ptr<Wall>& wall, const std::shared_ptr<Ball>& ball, DirectionType type)
+	{
+		switch (type)
+		{
+		case DirectionType::North:
+			return wall->GetColFirst() == wall->GetColSec() && wall->GetColFirst() == ball->GetCol() && wall->GetRowFirst() >= ball->GetRow();
+		case DirectionType::South:
+			return wall->GetColFirst() == wall->GetColSec() && wall->GetColFirst() == ball->GetCol() && wall->GetRowSec() <= ball->GetRow();
+		case DirectionType::East:
+			return wall->GetRowFirst() == wall->GetRowSec() && wall->GetRowFirst() == ball->GetRow() && wall->GetColSec() <= ball->GetCol();
+		case DirectionType::West:
+			return wall->GetRowFirst() == wall->GetRowSec() && wall->GetRowFirst() == ball->GetRow() && wall->GetColFirst() >= ball->GetCol();
+		default:
+			std::cout << "Warning. Unknown direction type." << std::endl;
+			return false;
+		}
+	};
+
+	const auto checkBallsWithWall = [checkBalls](const Ball& oldBall, const std::shared_ptr<Ball>& ball, const std::shared_ptr<Wall>& wall, DirectionType type)
+	{
+		const auto res = checkBalls(oldBall, ball, type);
+		switch (type)
+		{
+		case DirectionType::North:
+			return res && oldBall.GetRow() <= wall->GetRowFirst();
+		case DirectionType::South:
+			return res && oldBall.GetRow() >= wall->GetRowSec();
+		case DirectionType::East:
+			return res && oldBall.GetCol() >= wall->GetColSec();
+		case DirectionType::West:
+			return res && oldBall.GetCol() <= wall->GetColFirst();
+		default:
+			return false;
+		}
+	};
+
+	const auto calcNewPoint = [this](bool needWall, int ballsNumber, DirectionType type, const std::shared_ptr<Wall>& wall = nullptr)
+	{
+		switch (type)
+		{
+		case DirectionType::North:
+			return needWall && wall ? wall->GetRowFirst() - ballsNumber : m_size - 1 - ballsNumber;
+			case DirectionType::South:
+			return needWall && wall ? wall->GetRowSec() + ballsNumber : ballsNumber;
+		case DirectionType::East:
+			return needWall && wall ? wall->GetColSec() - ballsNumber : ballsNumber;
+		case DirectionType::West:
+			return needWall && wall ? wall->GetColFirst() + ballsNumber : m_size - 1 - ballsNumber;
+		default:
+			std::cout << "Warning. Unknown direction type." << std::endl;
+			return 0;
+		}
+	};
+
+	const auto checkHoles = [](const std::shared_ptr<Ball>& hole, const std::shared_ptr<Ball>& ball, int newPoint, DirectionType type)
+	{
+		switch (type)
+		{
+		case DirectionType::North:
+			return hole->GetCol() == ball->GetCol() && hole->GetRow() <= newPoint && hole->GetRow() > ball->GetRow();
+		case DirectionType::South:
+			return hole->GetCol() == ball->GetCol() && hole->GetRow() >= newPoint && hole->GetRow() < ball->GetRow();
+		case DirectionType::East:
+			return hole->GetRow() == ball->GetRow() && hole->GetCol() >= newPoint && hole->GetCol() < ball->GetCol();
+		case DirectionType::West:
+			return hole->GetRow() == ball->GetRow() && hole->GetCol() <= newPoint && hole->GetCol() > ball->GetCol();
+		default:
+			std::cout << "Warning. Unknown direction type." << std::endl;
+			return false;
+		}
+	};
+
+	const auto changeData = [](const std::shared_ptr<Ball>& ball, int data, DirectionType type)
+	{
+		switch (type)
+		{
+		case DirectionType::North:
+		case DirectionType::South:
+			ball->SetRow(data);
+			break;
+		case DirectionType::East:
+		case DirectionType::West:
+			ball->SetCol(data);
+			break;
+		default:
+			std::cout << "Warning. Unknown direction type." << std::endl;
+		}
+	};
+
 	// все 4 функции аналогичные, различия только по направлению движения
-	int rowNew{ 0 };
-	int ballsCount{ 0 };
-	int delCount{ 0 };
+	int rowNew{ 0 }, ballsCount{ 0 }, delCount{ 0 };
 	bool isWall{ false };
 
 	std::list<int> numbers;
-
 	std::list<Ball> oldBalls;
 	for (const auto& ball : m_balls)
 	{
@@ -222,7 +326,7 @@ bool Condition::GoNorth()
 		// ищутся шары до конца поля
 		for (const auto& oldBall : oldBalls)
 		{
-			if (oldBall.GetCol() == ball->GetCol() && oldBall.GetRow() > ball->GetRow())
+			if (checkBalls(oldBall, ball, directionType))
 			{
 				++ballsCount;
 			}
@@ -232,32 +336,32 @@ bool Condition::GoNorth()
 		for (const auto& wall : m_walls)
 		{
 			// ищутся шары до стены
-			if (wall->GetColFirst() == wall->GetColSec() && wall->GetColFirst() == ball->GetCol() && wall->GetRowFirst() >= ball->GetRow())
+			if (checkWalls(wall, ball, directionType))
 			{
 				ballsCount = 0;
 				for (const auto& oldBall : oldBalls)
 				{
-					if (oldBall.GetCol() == ball->GetCol() && oldBall.GetRow() > ball->GetRow() && oldBall.GetRow() <= wall->GetRowFirst())
+					if (checkBallsWithWall(oldBall, ball, wall, directionType))
 					{
 						++ballsCount;
 					}
 				}
 
 				// рассчитывается новая строка
-				rowNew = wall->GetRowFirst() - ballsCount;
+				rowNew = calcNewPoint(true, ballsCount, directionType, wall);
 				isWall = true;
 			}
 		}
 
 		if (!isWall)
 		{
-			rowNew = m_size - 1 - ballsCount;
+			rowNew = calcNewPoint(false, ballsCount, directionType, nullptr);
 		}
 
 		// цикл по лункам
 		for (const auto& hole : m_holes)
 		{
-			if (hole->GetCol() == ball->GetCol() && (hole->GetRow() <= rowNew) && (hole->GetRow() > ball->GetRow()))
+			if (checkHoles(hole, ball, rowNew, directionType))
 			{
 				// если есть лунка нужная на пути, запоминаем номер
 				if (hole->GetNumber() == ball->GetNumber() && ballsCount == 0)
@@ -274,7 +378,7 @@ bool Condition::GoNorth()
 
 		if (delCount == 0)
 		{
-			ball->SetRow(rowNew);
+			changeData(ball, rowNew, directionType);
 		}
 	}
 
@@ -289,269 +393,7 @@ bool Condition::GoNorth()
 		return false;
 	}
 
-	AddToAnswer(DirectionType::North);
-	return true;
-}
-
-bool Condition::GoSouth()
-{
-	int row_new = 0;
-	int balls_count = 0;
-	int del_count = 0;
-	bool isWall = false;
-
-	std::list<int> numbers;
-
-	std::list<Ball> oldBalls;
-	for (const auto& ball : m_balls)
-	{
-		oldBalls.emplace_back(*ball);
-	}
-
-	for (const auto& ball : m_balls)
-	{
-		row_new = 0;
-		balls_count = 0;
-		isWall = false;
-
-		for (const auto& oldBall : oldBalls)
-		{
-			if (oldBall.GetCol() == ball->GetCol() && oldBall.GetRow() < ball->GetRow())
-			{
-				++balls_count;
-			}
-		}
-
-		for (const auto& wall : m_walls)
-		{
-			if (wall->GetColFirst() == wall->GetColSec() && wall->GetColFirst() == ball->GetCol() && wall->GetRowSec() <= ball->GetRow())
-			{
-				balls_count = 0;
-				for (const auto& oldBall : oldBalls)
-				{
-					if (oldBall.GetCol() == ball->GetCol() && oldBall.GetRow() < ball->GetRow() && oldBall.GetRow() >= wall->GetRowSec())
-					{
-						++balls_count;
-					}
-				}
-				row_new = wall->GetRowSec() + balls_count;
-				isWall = true;
-			}
-		}
-
-		if (!isWall)
-		{
-			row_new = balls_count;
-		}
-
-		for (const auto& hole : m_holes)
-		{
-			if (hole->GetCol() == ball->GetCol() && hole->GetRow() >= row_new && hole->GetRow() < ball->GetRow())
-			{
-				if (hole->GetNumber() == ball->GetNumber() && balls_count == 0)
-				{
-					numbers.push_back(hole->GetNumber());
-					++del_count;
-				}
-				else
-				{
-					return false;
-				}
-			}
-		}
-
-		if (del_count == 0)
-		{
-			ball->SetRow(row_new);
-		}
-	}
-
-	for (const auto& i : numbers)
-	{
-		DeleteDataByNumber(i);
-	}
-
-	if (!CheckMovement())
-	{
-		return false;
-	}
-
-	AddToAnswer(DirectionType::South);
-	return true;
-}
-
-bool Condition::GoEast()
-{
-	int col_new = 0;
-	int balls_count = 0;
-	int del_count = 0;
-	bool isWall = false;
-
-	std::list<int> numbers;
-
-	std::list<Ball> oldBalls;
-	for (const auto& ball : m_balls)
-	{
-		oldBalls.emplace_back(*ball);
-	}
-
-	for (const auto& ball : m_balls)
-	{
-		col_new = 0;
-		balls_count = 0;
-		isWall = false;
-
-		for (const auto& oldBall : oldBalls)
-		{
-			if (oldBall.GetRow() == ball->GetRow() && oldBall.GetCol() < ball->GetCol())
-			{
-				++balls_count;
-			}
-		}
-
-		for (const auto& wall : m_walls)
-		{
-			if ((wall->GetRowFirst() == wall->GetRowSec()) && (wall->GetRowFirst() == ball->GetRow())
-				&& (wall->GetColSec() <= ball->GetCol()))
-			{
-				balls_count = 0;
-				for (const auto& oldBall : oldBalls)
-				{
-					if (oldBall.GetRow() == ball->GetRow() && oldBall.GetCol() < ball->GetCol() && oldBall.GetCol() >= wall->GetColSec())
-					{
-						++balls_count;
-					}
-				}
-				col_new = wall->GetColSec() - balls_count;
-				isWall = true;
-			}
-		}
-
-		if (!isWall)
-		{
-			col_new = balls_count;
-		}
-
-		for (const auto& hole : m_holes)
-		{
-			if ((hole->GetRow() == ball->GetRow()) && (hole->GetCol() >= col_new) && (hole->GetCol() < ball->GetCol()))
-			{
-				if ((hole->GetNumber() == ball->GetNumber()) && (balls_count == 0))
-				{
-					numbers.push_back(hole->GetNumber());
-					++del_count;
-				}
-				else
-				{
-					return false;
-				}
-			}
-		}
-
-		if (del_count == 0)
-		{
-			ball->SetCol(col_new);
-		}
-	}
-
-	for (const auto& i : numbers)
-	{
-		DeleteDataByNumber(i);
-	}
-
-	if (!CheckMovement())
-	{
-		return false;
-	}
-
-	AddToAnswer(DirectionType::East);
-	return true;
-}
-
-bool Condition::GoWest()
-{
-	int col_new = 0;
-	int balls_count = 0;
-	int del_count = 0;
-	bool isWall = false;
-
-	std::list<int> numbers;
-
-	std::list<Ball> oldBalls;
-	for (const auto& ball : m_balls)
-	{
-		oldBalls.emplace_back(*ball);
-	}
-
-	for (const auto& ball : m_balls)
-	{
-		col_new = 0;
-		balls_count = 0;
-		isWall = false;
-
-		for (const auto& oldBall : oldBalls)
-		{
-			if (oldBall.GetRow() == ball->GetRow() && oldBall.GetCol() > ball->GetCol())
-			{
-				++balls_count;
-			}
-		}
-
-		for (const auto& wall : m_walls)
-		{
-			if (wall->GetRowFirst() == wall->GetRowSec() && wall->GetRowFirst() == ball->GetRow() && wall->GetColFirst() >= ball->GetCol())
-			{
-				balls_count = 0;
-				for (const auto& oldBall : oldBalls)
-				{
-					if (oldBall.GetRow() == ball->GetRow() && oldBall.GetCol() > ball->GetCol() && oldBall.GetCol() <= wall->GetColFirst())
-					{
-						++balls_count;
-					}
-				}
-				col_new = wall->GetColFirst() + balls_count;
-				isWall = true;
-			}
-		}
-
-		if (!isWall)
-		{
-			col_new = m_size - 1 - balls_count;
-		}
-
-		for (const auto& hole : m_holes)
-		{
-			if (hole->GetRow() == ball->GetRow() && hole->GetCol() <= col_new && hole->GetCol() > ball->GetCol())
-			{
-				if (hole->GetNumber() == ball->GetNumber() && balls_count == 0)
-				{
-					numbers.push_back(hole->GetNumber());
-					++del_count;
-				}
-				else
-				{
-					return false;
-				}
-			}
-		}
-
-		if (del_count == 0)
-		{
-			ball->SetCol(col_new);
-		}
-	}
-
-	for (const auto& i : numbers)
-	{
-		DeleteDataByNumber(i);
-	}
-
-	if (!CheckMovement())
-	{
-		return false;
-	}
-
-	AddToAnswer(DirectionType::West);
+	AddToAnswer(directionType);
 	return true;
 }
 

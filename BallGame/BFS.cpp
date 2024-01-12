@@ -18,7 +18,7 @@ void Bfs::GetNextPoints(const Condition& state, std::list<Condition>& states) no
 		// north
 		Condition north = state;
 		north.SetCameFrom(state);
-		if (north.GoNorth())
+		if (north.ChangePosition(Condition::DirectionType::North))
 		{
 			states.emplace_back(north);
 		}
@@ -26,7 +26,7 @@ void Bfs::GetNextPoints(const Condition& state, std::list<Condition>& states) no
 		// south
 		Condition south = state;
 		south.SetCameFrom(state);
-		if (south.GoSouth())
+		if (south.ChangePosition(Condition::DirectionType::South))
 		{
 			states.emplace_back(south);
 		}
@@ -34,7 +34,7 @@ void Bfs::GetNextPoints(const Condition& state, std::list<Condition>& states) no
 		// east
 		Condition east = state;
 		east.SetCameFrom(state);
-		if (east.GoEast())
+		if (east.ChangePosition(Condition::DirectionType::East))
 		{
 			states.emplace_back(east);
 		}
@@ -42,7 +42,7 @@ void Bfs::GetNextPoints(const Condition& state, std::list<Condition>& states) no
 		// west
 		Condition west = state;
 		west.SetCameFrom(state);
-		if (west.GoWest())
+		if (west.ChangePosition(Condition::DirectionType::West))
 		{
 			states.emplace_back(west);
 		}

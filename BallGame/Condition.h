@@ -107,28 +107,11 @@ public:
 	[[nodiscard]] int GetSize() const noexcept;
 
 	/**
-	 * \brief движение на север
-	 * \return да/нет
+	 * \brief Изменение позиции
+	 * \param directionType направление движения
+	 * \return успешно или нет
 	 */
-	[[nodiscard]] bool GoNorth();
-
-	/**
-	 * \brief движение на юг
-	 * \return да/нет
-	 */
-	[[nodiscard]] bool GoSouth();
-
-	/**
-	 * \brief движение на восток
-	 * \return да/нет
-	 */
-	[[nodiscard]] bool GoEast();
-
-	/**
-	 * \brief движение на запад
-	 * \return да/нет
-	 */
-	[[nodiscard]] bool GoWest();
+	[[nodiscard]] bool ChangePosition(DirectionType directionType);
 
 	/**
 	 * \brief функция проверки выхода из цикла
