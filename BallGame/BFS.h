@@ -31,7 +31,7 @@ private:
 	 * \param state текущее состояние
 	 * \param states список возможных состояний
 	 */
-	void GetNextPoints(const Condition& state, std::list<Condition>& states) noexcept;
+	void GetNextPoints(const Condition& state, std::list<Condition>& states) const noexcept;
 
 };
 

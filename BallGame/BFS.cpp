@@ -4,47 +4,46 @@
 #include "Condition.h"
 
 // C++
+#include <future>
 #include <iostream>
+#include <vector>
 
 namespace ball_game
 {
 
-void Bfs::GetNextPoints(const Condition& state, std::list<Condition>& states) noexcept
+void Bfs::GetNextPoints(const Condition& state, std::list<Condition>& states) const noexcept
 {
 	try
 	{
+		static const std::vector directions{
+		Condition::DirectionType::North
+		, Condition::DirectionType::South
+		, Condition::DirectionType::East
+		, Condition::DirectionType::West };
+
+		static const auto size = directions.size();
+		std::vector<std::pair<Condition, std::future<bool>>> futurePoints;
+		futurePoints.reserve(size);
+
+		for (size_t i{ 0 }; i < size; ++i)
+		{
+			Condition newState = state;
+			newState.SetCameFrom(state);
+			futurePoints.emplace_back(std::move(newState), std::future<bool>{});
+		}
+
+		for (size_t i{ 0 }; i < size; ++i)
+		{
+			futurePoints[i].second = std::async(std::launch::async, &Condition::ChangePosition, &futurePoints[i].first, directions[i]);
+		}
+
 		states.clear();
-
-		// north
-		Condition north = state;
-		north.SetCameFrom(state);
-		if (north.ChangePosition(Condition::DirectionType::North))
+		for (auto& [cond, future] : futurePoints)
 		{
-			states.emplace_back(north);
-		}
-
-		// south
-		Condition south = state;
-		south.SetCameFrom(state);
-		if (south.ChangePosition(Condition::DirectionType::South))
-		{
-			states.emplace_back(south);
-		}
-
-		// east
-		Condition east = state;
-		east.SetCameFrom(state);
-		if (east.ChangePosition(Condition::DirectionType::East))
-		{
-			states.emplace_back(east);
-		}
-
-		// west
-		Condition west = state;
-		west.SetCameFrom(state);
-		if (west.ChangePosition(Condition::DirectionType::West))
-		{
-			states.emplace_back(west);
+			if (future.get())
+			{
+				states.emplace_back(std::move(cond));
+			}
 		}
 	}
 	catch (const std::exception& exception)
