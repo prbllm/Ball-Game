@@ -1,7 +1,7 @@
-# Ball Game
+# Tilt Maze
 ## Rules
 
-A Ball Game is played with M balls on a square board. The board is divided into NxN unit squares, and M of those unit squares contain holes. Balls and holes are numbered from 1 to M. The goal of the Ball game is to roll each ball into the hole that has the same number. 
+A Tilt Maze is played with M balls on a square board. The board is divided into NxN unit squares, and M of those unit squares contain holes. Balls and holes are numbered from 1 to M. The goal of the Tilt Maze is to roll each ball into the hole that has the same number. 
 
 A game board may contain walls. Each wall is one unit long and stands between two adjacent unit squares. Two squares are considered adjacent if and only if they share a side. 
 
