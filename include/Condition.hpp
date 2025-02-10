@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 // Self
-#include "Structures.h"
+#include "Structures.hpp"
 
 // C++
 #include <list>

@@ -1,6 +1,6 @@
 ﻿// Self
-#include "BFS.h"
-#include "Condition.h"
+#include "BFS.hpp"
+#include "Condition.hpp"
 
 // C++
 #include <filesystem>
@@ -10,7 +10,7 @@
 
 void OpenFile(std::list<ball_game::Condition>& cases)
 {
-	static const std::filesystem::path fileName{ std::filesystem::current_path() / "BallGame" / "data" / "input.txt" };
+	static const std::filesystem::path fileName{ std::filesystem::current_path() / ".." / "data" / "input.txt" };
 	std::ifstream file(fileName, std::ios_base::in);
 
 	if (!file.is_open())

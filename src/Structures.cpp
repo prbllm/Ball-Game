@@ -1,4 +1,4 @@
-﻿#include "Structures.h"
+﻿#include "Structures.hpp"
 
 namespace ball_game {
 

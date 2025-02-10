@@ -1,7 +1,7 @@
-﻿#include "BFS.h"
+﻿#include "BFS.hpp"
 
 // Self
-#include "Condition.h"
+#include "Condition.hpp"
 
 // C++
 #include <future>
