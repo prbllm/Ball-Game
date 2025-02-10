@@ -16,7 +16,7 @@ The game is over when each ball has dropped into a hole with the corresponding n
 
 The figure below illustrates a solution for a game played on a 4x4 board with three blue balls, three holes and a wall. The solution has five moves: lift the east side, lift the north side, lift the south side, lift the west side, lift the north side.
 
-![Ball Game](https://github.com/prbllm/Ball-Game/raw/master/BallGame/data/sample.png)
+![Ball Game](https://github.com/prbllm/Ball-Game/raw/master/data/sample.png)
 
 ## Input 
 The input file (**input.txt**) contains several test cases. The first line of each test case contains three numbers: the size N (2 ≤ N ≤ 40) of the board, the number M (M > 0) of balls, and the number W of walls.  
